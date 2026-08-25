@@ -14,9 +14,12 @@
  * @property {string} name - 專案名稱
  * @property {string} date - 活動日期
  * @property {string} note - 備註
+ * @property {Object} eventInfo - 活動資訊
  * @property {Object} mapState - 地圖狀態（中心點、縮放）
  * @property {Array<MarkerData>} markers - 標記列表
  * @property {Array<DrawingData>} drawings - 畫筆標記列表
+ * @property {Array<RouteData>} routes - 路線列表
+ * @property {Array<TextData>} textMarkers - 文字方塊列表
  * @property {string} createdAt - 建立時間
  * @property {string} updatedAt - 更新時間
  */
@@ -155,14 +158,47 @@ function bindEvents() {
     document.getElementById('btn-cancel-new-project').addEventListener('click', closeNewProjectDialog);
     document.getElementById('btn-confirm-new-project').addEventListener('click', confirmNewProject);
 
+    // 活動資訊
+    document.getElementById('btn-event-info').addEventListener('click', openEventInfoDialog);
+    document.getElementById('btn-close-event-info').addEventListener('click', closeEventInfoDialog);
+    document.getElementById('btn-cancel-event-info').addEventListener('click', closeEventInfoDialog);
+    document.getElementById('btn-confirm-event-info').addEventListener('click', saveEventInfo);
+
     // 匯出/匯入
     document.getElementById('btn-export').addEventListener('click', exportProject);
     document.getElementById('btn-import').addEventListener('click', openImportDialog);
     document.getElementById('btn-close-import').addEventListener('click', closeImportDialog);
     document.getElementById('file-import').addEventListener('change', importProject);
 
+    // 匯入 KML/GPX
+    document.getElementById('btn-import-kml').addEventListener('click', openImportKMLDialog);
+    document.getElementById('btn-close-import-kml').addEventListener('click', closeImportKMLDialog);
+    document.getElementById('file-import-kml').addEventListener('change', importKML);
+
+    // 截圖
+    document.getElementById('btn-screenshot').addEventListener('click', exportScreenshot);
+
+    // PDF
+    document.getElementById('btn-export-pdf').addEventListener('click', exportPDF);
+
+    // 分享
+    document.getElementById('btn-share').addEventListener('click', openShareDialog);
+    document.getElementById('btn-close-share').addEventListener('click', closeShareDialog);
+    document.getElementById('btn-cancel-share').addEventListener('click', closeShareDialog);
+    document.getElementById('btn-copy-share-link').addEventListener('click', copyShareLink);
+    document.getElementById('btn-download-share').addEventListener('click', downloadSharePage);
+
     // 列印
     document.getElementById('btn-print').addEventListener('click', printMap);
+
+    // 天氣
+    document.getElementById('btn-weather').addEventListener('click', openWeatherDialog);
+    document.getElementById('btn-close-weather').addEventListener('click', closeWeatherDialog);
+    document.getElementById('btn-cancel-weather').addEventListener('click', closeWeatherDialog);
+    document.getElementById('btn-refresh-weather').addEventListener('click', refreshWeather);
+
+    // 教學
+    document.getElementById('btn-tutorial').addEventListener('click', startTutorial);
 
     // 匯出靜態 HTML
     document.getElementById('btn-export-html').addEventListener('click', exportStaticHTML);
@@ -190,6 +226,9 @@ function bindEvents() {
     document.getElementById('layer-destinations').addEventListener('change', toggleLayer);
     document.getElementById('layer-parking').addEventListener('change', toggleLayer);
     document.getElementById('layer-roadside').addEventListener('change', toggleLayer);
+    document.getElementById('layer-bus').addEventListener('change', toggleLayer);
+    document.getElementById('layer-taxi').addEventListener('change', toggleLayer);
+    document.getElementById('layer-accessible').addEventListener('change', toggleLayer);
     document.getElementById('layer-routes').addEventListener('change', toggleLayer);
     document.getElementById('layer-texts').addEventListener('change', toggleLayer);
     document.getElementById('layer-drawings').addEventListener('change', toggleLayer);
@@ -267,6 +306,18 @@ function createProject(name, date, note) {
         name: name,
         date: date,
         note: note,
+        eventInfo: {
+            name: name,
+            date: date,
+            time: '',
+            address: '',
+            organizer: '',
+            phone: '',
+            email: '',
+            url: '',
+            description: '',
+            transport: ''
+        },
         mapState: {
             center: [25.033, 121.565],
             zoom: 15
@@ -2131,5 +2182,793 @@ function handleKeyboard(e) {
                 printMap();
                 break;
         }
+    }
+}
+
+// ========================================
+// 活動資訊管理
+// ========================================
+
+function openEventInfoDialog() {
+    if (!currentProject) return;
+    
+    const info = currentProject.eventInfo || {};
+    document.getElementById('event-name').value = info.name || currentProject.name || '';
+    document.getElementById('event-date').value = info.date || currentProject.date || '';
+    document.getElementById('event-time').value = info.time || '';
+    document.getElementById('event-address').value = info.address || '';
+    document.getElementById('event-organizer').value = info.organizer || '';
+    document.getElementById('event-phone').value = info.phone || '';
+    document.getElementById('event-email').value = info.email || '';
+    document.getElementById('event-url').value = info.url || '';
+    document.getElementById('event-description').value = info.description || '';
+    document.getElementById('event-transport').value = info.transport || '';
+    
+    document.getElementById('dialog-event-info').showModal();
+}
+
+function closeEventInfoDialog() {
+    document.getElementById('dialog-event-info').close();
+}
+
+function saveEventInfo() {
+    if (!currentProject) return;
+    
+    currentProject.eventInfo = {
+        name: document.getElementById('event-name').value.trim(),
+        date: document.getElementById('event-date').value,
+        time: document.getElementById('event-time').value.trim(),
+        address: document.getElementById('event-address').value.trim(),
+        organizer: document.getElementById('event-organizer').value.trim(),
+        phone: document.getElementById('event-phone').value.trim(),
+        email: document.getElementById('event-email').value.trim(),
+        url: document.getElementById('event-url').value.trim(),
+        description: document.getElementById('event-description').value.trim(),
+        transport: document.getElementById('event-transport').value.trim()
+    };
+    
+    saveCurrentProject();
+    closeEventInfoDialog();
+    
+    // 如果有地址，更新活動資訊卡片標記
+    updateEventInfoCard();
+}
+
+function updateEventInfoCard() {
+    if (!currentProject || !currentProject.eventInfo) return;
+    
+    // 可以在地圖上顯示活動資訊卡片（可選功能）
+    // 這裡我們先不做，專注在其他功能
+}
+
+// ========================================
+// 匯出截圖
+// ========================================
+
+async function exportScreenshot() {
+    if (!currentProject) return;
+    
+    showLoading('產生截圖中...');
+    
+    try {
+        // 等待地圖載入完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const mapContainer = document.getElementById('map');
+        const canvas = await html2canvas(mapContainer, {
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            scale: 2
+        });
+        
+        // 下載圖片
+        const link = document.createElement('a');
+        link.download = `${currentProject.name.replace(/[^a-z0-9\u4e00-\u9fa5]/gi, '_')}_地圖.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        
+        hideLoading();
+    } catch (err) {
+        hideLoading();
+        alert('截圖失敗：' + err.message);
+    }
+}
+
+// ========================================
+// 匯出 PDF
+// ========================================
+
+async function exportPDF() {
+    if (!currentProject) return;
+    
+    showLoading('產生 PDF 中...');
+    
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a4'); // 橫向
+        
+        // 等待地圖載入完成
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const mapContainer = document.getElementById('map');
+        const canvas = await html2canvas(mapContainer, {
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            scale: 2
+        });
+        
+        // 加入地圖圖片
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 277; // A4 寬度減邊距
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        doc.addImage(imgData, 'PNG', 10, 10, imgWidth, Math.min(imgHeight, 180));
+        
+        // 加入活動資訊頁面
+        if (currentProject.eventInfo) {
+            doc.addPage();
+            const info = currentProject.eventInfo;
+            let y = 20;
+            
+            doc.setFontSize(20);
+            doc.text(info.name || currentProject.name, 20, y);
+            y += 15;
+            
+            doc.setFontSize(12);
+            if (info.date) {
+                doc.text(`日期：${info.date}`, 20, y);
+                y += 8;
+            }
+            if (info.time) {
+                doc.text(`時間：${info.time}`, 20, y);
+                y += 8;
+            }
+            if (info.address) {
+                doc.text(`地址：${info.address}`, 20, y);
+                y += 8;
+            }
+            if (info.organizer) {
+                doc.text(`主辦單位：${info.organizer}`, 20, y);
+                y += 8;
+            }
+            if (info.phone) {
+                doc.text(`聯絡電話：${info.phone}`, 20, y);
+                y += 8;
+            }
+            if (info.email) {
+                doc.text(`聯絡信箱：${info.email}`, 20, y);
+                y += 8;
+            }
+            if (info.description) {
+                y += 8;
+                doc.text('活動說明：', 20, y);
+                y += 8;
+                const lines = doc.splitTextToSize(info.description, 250);
+                doc.text(lines, 20, y);
+                y += lines.length * 6;
+            }
+            if (info.transport) {
+                y += 8;
+                doc.text('交通資訊：', 20, y);
+                y += 8;
+                const lines = doc.splitTextToSize(info.transport, 250);
+                doc.text(lines, 20, y);
+            }
+        }
+        
+        // 下載 PDF
+        doc.save(`${currentProject.name.replace(/[^a-z0-9\u4e00-\u9fa5]/gi, '_')}.pdf`);
+        
+        hideLoading();
+    } catch (err) {
+        hideLoading();
+        alert('PDF 匯出失敗：' + err.message);
+    }
+}
+
+// ========================================
+// 分享連結
+// ========================================
+
+function openShareDialog() {
+    if (!currentProject) return;
+    
+    // 產生唯讀頁面的 HTML
+    const html = generateViewerHTML();
+    
+    // 建立 Blob URL
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    
+    // 顯示連結
+    document.getElementById('share-link').value = url;
+    
+    // 產生 QR Code（使用免費 API）
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    document.getElementById('share-qr').innerHTML = `<img src="${qrUrl}" alt="QR Code" />`;
+    
+    document.getElementById('dialog-share').showModal();
+}
+
+function closeShareDialog() {
+    document.getElementById('dialog-share').close();
+}
+
+function copyShareLink() {
+    const linkInput = document.getElementById('share-link');
+    linkInput.select();
+    document.execCommand('copy');
+    alert('已複製連結！');
+}
+
+function downloadSharePage() {
+    if (!currentProject) return;
+    
+    const html = generateViewerHTML();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${currentProject.name.replace(/[^a-z0-9\u4e00-\u9fa5]/gi, '_')}_檢視.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function generateViewerHTML() {
+    const center = currentProject.mapState.center;
+    const zoom = currentProject.mapState.zoom;
+    const info = currentProject.eventInfo || {};
+    
+    // 產生標記的 JS 代碼
+    let markersJS = '';
+    const allMarkers = currentProject.markers || [];
+    allMarkers.forEach(m => {
+        markersJS += `
+            L.marker([${m.lat}, ${m.lng}], {
+                icon: L.divIcon({
+                    className: 'custom-marker-container',
+                    html: '<div class="custom-marker ${m.type}" style="background: ${m.color}"><span>${getMarkerEmoji(m.type)}</span></div>',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 36],
+                    popupAnchor: [0, -36]
+                })
+            }).addTo(map).bindPopup('<div class="marker-popup"><h4>${getMarkerEmoji(m.type)} ${escapeHtml(m.name)}</h4>${m.note ? `<p>${escapeHtml(m.note)}</p>` : ''}</div>');
+        `;
+    });
+    
+    // 產生路線的 JS 代碼
+    let routesJS = '';
+    const allRoutes = currentProject.routes || [];
+    allRoutes.forEach(r => {
+        routesJS += `
+            L.polyline(${JSON.stringify(r.points)}, {
+                color: '${r.color}',
+                weight: ${r.width},
+                opacity: 0.8
+            }).addTo(map);
+        `;
+    });
+    
+    // 產生畫筆的 JS 代碼
+    let drawingsJS = '';
+    const allDrawings = currentProject.drawings || [];
+    allDrawings.forEach(d => {
+        drawingsJS += `
+            L.polygon(${JSON.stringify(d.points)}, {
+                color: '${d.color}',
+                weight: ${d.width},
+                opacity: ${d.opacity},
+                fillOpacity: ${d.opacity * 0.5}
+            }).addTo(map);
+        `;
+    });
+    
+    // 產生文字方塊的 JS 代碼
+    let textsJS = '';
+    const allTexts = currentProject.textMarkers || [];
+    allTexts.forEach(t => {
+        textsJS += `
+            L.marker([${t.lat}, ${t.lng}], {
+                icon: L.divIcon({
+                    className: 'text-marker-container',
+                    html: '<div class="text-marker" style="font-size: ${t.fontSize}px; background: ${t.bgColor}; color: ${t.textColor}; border-color: ${t.textColor}">${escapeHtml(t.content)}</div>',
+                    iconSize: null,
+                    iconAnchor: [0, 0]
+                }),
+                interactive: false
+            }).addTo(map);
+        `;
+    });
+    
+    return `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHtml(info.name || currentProject.name)} - 活動地圖</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 16px 20px;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.5rem; margin-bottom: 4px; }
+        .header p { font-size: 0.9rem; opacity: 0.8; }
+        
+        #map { width: 100%; height: 60vh; }
+        
+        .info-card {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .info-card h2 { margin-bottom: 16px; font-size: 1.3rem; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .info-item { padding: 8px 0; border-bottom: 1px solid #eee; }
+        .info-label { font-weight: 600; margin-bottom: 4px; font-size: 0.85rem; color: #666; }
+        .info-value { font-size: 0.95rem; }
+        .info-full { grid-column: span 2; }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 0.8rem;
+        }
+        
+        .custom-marker-container { background: transparent; border: none; }
+        .custom-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .custom-marker span {
+            transform: rotate(45deg);
+            font-size: 16px;
+        }
+        .text-marker {
+            background: white;
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            white-space: pre-wrap;
+            max-width: 200px;
+            text-align: center;
+        }
+        .marker-popup h4 { margin-bottom: 8px; }
+        .marker-popup p { margin: 4px 0; color: #555; font-size: 0.9rem; }
+        
+        @media (max-width: 600px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .info-full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📍 ${escapeHtml(info.name || currentProject.name)}</h1>
+        ${info.date ? `<p>活動日期：${formatDate(info.date)}${info.time ? ' ' + info.time : ''}</p>` : ''}
+        ${info.organizer ? `<p>${escapeHtml(info.organizer)}</p>` : ''}
+    </div>
+    
+    <div id="map"></div>
+    
+    <div class="info-card">
+        <h2>📋 活動資訊</h2>
+        <div class="info-grid">
+            ${info.address ? `<div class="info-item info-full"><div class="info-label">📍 地址</div><div class="info-value">${escapeHtml(info.address)}</div></div>` : ''}
+            ${info.phone ? `<div class="info-item"><div class="info-label">📞 聯絡電話</div><div class="info-value">${escapeHtml(info.phone)}</div></div>` : ''}
+            ${info.email ? `<div class="info-item"><div class="info-label">✉️ 聯絡信箱</div><div class="info-value">${escapeHtml(info.email)}</div></div>` : ''}
+            ${info.url ? `<div class="info-item info-full"><div class="info-label">🌐 活動網址</div><div class="info-value"><a href="${escapeHtml(info.url)}" target="_blank">${escapeHtml(info.url)}</a></div></div>` : ''}
+            ${info.description ? `<div class="info-item info-full"><div class="info-label">📝 活動說明</div><div class="info-value">${escapeHtml(info.description).replace(/\n/g, '<br>')}</div></div>` : ''}
+            ${info.transport ? `<div class="info-item info-full"><div class="info-label">🚌 交通資訊</div><div class="info-value">${escapeHtml(info.transport).replace(/\n/g, '<br>')}</div></div>` : ''}
+        </div>
+    </div>
+    
+    <div class="footer">
+        由活動地圖產生器建立 · ${new Date().toLocaleDateString('zh-TW')}
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([${center[0]}, ${center[1]}], ${zoom});
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        ${markersJS}
+        ${routesJS}
+        ${drawingsJS}
+        ${textsJS}
+    </script>
+</body>
+</html>`;
+}
+
+// ========================================
+// 匯入 KML/GPX
+// ========================================
+
+function openImportKMLDialog() {
+    document.getElementById('dialog-import-kml').showModal();
+}
+
+function closeImportKMLDialog() {
+    document.getElementById('dialog-import-kml').close();
+}
+
+function importKML(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const content = event.target.result;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(content, 'text/xml');
+            
+            // 檢查是否為 KML 或 GPX
+            if (doc.querySelector('Placemark') || doc.querySelector('kml')) {
+                parseKML(doc);
+            } else if (doc.querySelector('trk') || doc.querySelector('wpt') || doc.querySelector('rte')) {
+                parseGPX(doc);
+            } else {
+                throw new Error('無法識別的檔案格式');
+            }
+            
+            closeImportKMLDialog();
+            alert('匯入成功！');
+        } catch (err) {
+            alert('匯入失敗：' + err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
+function parseKML(doc) {
+    // 解析 KML 標記
+    const placemarks = doc.querySelectorAll('Placemark');
+    placemarks.forEach(pm => {
+        const name = pm.querySelector('name')?.textContent || '';
+        const description = pm.querySelector('description')?.textContent || '';
+        
+        // 解析點
+        const point = pm.querySelector('Point');
+        if (point) {
+            const coords = point.querySelector('coordinates')?.textContent.trim().split(',');
+            if (coords && coords.length >= 2) {
+                const lng = parseFloat(coords[0]);
+                const lat = parseFloat(coords[1]);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    addMarker('destination', lat, lng, {
+                        id: generateId(),
+                        type: 'destination',
+                        lat: lat,
+                        lng: lng,
+                        name: name || 'KML 標記',
+                        note: description,
+                        color: '#e74c3c'
+                    });
+                }
+            }
+        }
+        
+        // 解析線
+        const lineString = pm.querySelector('LineString');
+        if (lineString) {
+            const coordsText = lineString.querySelector('coordinates')?.textContent.trim();
+            if (coordsText) {
+                const points = coordsText.split(/\s+/).map(coord => {
+                    const parts = coord.split(',');
+                    return [parseFloat(parts[1]), parseFloat(parts[0])];
+                }).filter(p => !isNaN(p[0]) && !isNaN(p[1]));
+                
+                if (points.length >= 2) {
+                    addRouteToMap({
+                        id: generateId(),
+                        points: points,
+                        name: name || 'KML 路線',
+                        note: description,
+                        color: '#e74c3c',
+                        width: 4,
+                        style: 'solid'
+                    });
+                }
+            }
+        }
+    });
+    
+    saveCurrentProject();
+}
+
+function parseGPX(doc) {
+    // 解析 GPX 航點
+    const waypoints = doc.querySelectorAll('wpt');
+    waypoints.forEach(wpt => {
+        const name = wpt.querySelector('name')?.textContent || '';
+        const lat = parseFloat(wpt.getAttribute('lat'));
+        const lng = parseFloat(wpt.getAttribute('lon'));
+        
+        if (!isNaN(lat) && !isNaN(lng)) {
+            addMarker('destination', lat, lng, {
+                id: generateId(),
+                type: 'destination',
+                lat: lat,
+                lng: lng,
+                name: name || 'GPX 航點',
+                note: '',
+                color: '#e74c3c'
+            });
+        }
+    });
+    
+    // 解析 GPX 路徑
+    const tracks = doc.querySelectorAll('trk');
+    tracks.forEach(trk => {
+        const name = trk.querySelector('name')?.textContent || '';
+        const points = [];
+        
+        trk.querySelectorAll('trkpt').forEach(pt => {
+            const lat = parseFloat(pt.getAttribute('lat'));
+            const lng = parseFloat(pt.getAttribute('lon'));
+            if (!isNaN(lat) && !isNaN(lng)) {
+                points.push([lat, lng]);
+            }
+        });
+        
+        if (points.length >= 2) {
+            addRouteToMap({
+                id: generateId(),
+                points: points,
+                name: name || 'GPX 路徑',
+                note: '',
+                color: '#3498db',
+                width: 4,
+                style: 'solid'
+            });
+        }
+    });
+    
+    // 解析 GPX 路線
+    const routes = doc.querySelectorAll('rte');
+    routes.forEach(rte => {
+        const name = rte.querySelector('name')?.textContent || '';
+        const points = [];
+        
+        rte.querySelectorAll('rtept').forEach(pt => {
+            const lat = parseFloat(pt.getAttribute('lat'));
+            const lng = parseFloat(pt.getAttribute('lon'));
+            if (!isNaN(lat) && !isNaN(lng)) {
+                points.push([lat, lng]);
+            }
+        });
+        
+        if (points.length >= 2) {
+            addRouteToMap({
+                id: generateId(),
+                points: points,
+                name: name || 'GPX 路線',
+                note: '',
+                color: '#27ae60',
+                width: 4,
+                style: 'solid'
+            });
+        }
+    });
+    
+    saveCurrentProject();
+}
+
+// ========================================
+// 天氣圖層
+// ========================================
+
+function openWeatherDialog() {
+    document.getElementById('dialog-weather').showModal();
+    refreshWeather();
+}
+
+function closeWeatherDialog() {
+    document.getElementById('dialog-weather').close();
+}
+
+async function refreshWeather() {
+    const display = document.getElementById('weather-display');
+    
+    if (!currentProject || !currentProject.eventInfo || !currentProject.eventInfo.address) {
+        display.innerHTML = '<p>請先在「活動資訊」中設定活動地址。</p>';
+        return;
+    }
+    
+    display.innerHTML = '<p>載入天氣資料中...</p>';
+    
+    // 使用免費天氣 API（Open-Meteo，無需 API key）
+    // 先用地理編碼取得座標
+    try {
+        const address = currentProject.eventInfo.address;
+        const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(address)}&count=1&language=zh`;
+        const geocodeRes = await fetch(geocodeUrl);
+        const geocodeData = await geocodeRes.json();
+        
+        if (!geocodeData.results || geocodeData.results.length === 0) {
+            display.innerHTML = '<p>找不到該地址的天氣資訊。</p>';
+            return;
+        }
+        
+        const { latitude, longitude } = geocodeData.results[0];
+        
+        // 取得天氣
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=Asia%2FTaipei`;
+        const weatherRes = await fetch(weatherUrl);
+        const weatherData = await weatherRes.json();
+        
+        const current = weatherData.current;
+        const daily = weatherData.daily;
+        
+        // 天氣代碼對應
+        const weatherCodes = {
+            0: ['☀️', '晴天'],
+            1: ['🌤️', '大致晴朗'],
+            2: ['⛅', '多雲'],
+            3: ['☁️', '陰天'],
+            45: ['🌫️', '霧'],
+            48: ['🌫️', '霧凇'],
+            51: ['🌦️', '小雨'],
+            53: ['🌦️', '中雨'],
+            55: ['🌧️', '大雨'],
+            61: ['🌧️', '小雨'],
+            63: ['🌧️', '中雨'],
+            65: ['🌧️', '大雨'],
+            71: ['❄️', '小雪'],
+            73: ['❄️', '中雪'],
+            75: ['❄️', '大雪'],
+            80: ['🌦️', '陣雨'],
+            81: ['🌧️', '中陣雨'],
+            82: ['⛈️', '大陣雨'],
+            95: ['⛈️', '雷雨'],
+            96: ['⛈️', '雷陣雨']
+        };
+        
+        const [icon, desc] = weatherCodes[current.weather_code] || ['❓', '未知'];
+        
+        let html = `
+            <div class="weather-icon">${icon}</div>
+            <div class="weather-temp">${current.temperature_2m}°C</div>
+            <div class="weather-desc">${desc}</div>
+            <div class="weather-details">
+                <div class="weather-detail">
+                    <span>體感溫度</span>
+                    <span>${current.apparent_temperature}°C</span>
+                </div>
+                <div class="weather-detail">
+                    <span>濕度</span>
+                    <span>${current.relative_humidity_2m}%</span>
+                </div>
+                <div class="weather-detail">
+                    <span>風速</span>
+                    <span>${current.wind_speed_10m} km/h</span>
+                </div>
+            </div>
+        `;
+        
+        // 如果有每日預報
+        if (daily && daily.time) {
+            html += '<div style="margin-top: 16px; text-align: left;"><strong>未來幾天：</strong></div>';
+            daily.time.slice(0, 5).forEach((date, i) => {
+                const [dayIcon] = weatherCodes[daily.weather_code[i]] || ['❓'];
+                html += `<div style="font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid #eee;">
+                    ${date}: ${dayIcon} ${daily.temperature_2m_min[i]}°C ~ ${daily.temperature_2m_max[i]}°C
+                </div>`;
+            });
+        }
+        
+        display.innerHTML = html;
+    } catch (err) {
+        display.innerHTML = `<p>取得天氣資訊失敗：${err.message}</p>`;
+    }
+}
+
+// ========================================
+// 教學提示
+// ========================================
+
+function startTutorial() {
+    if (typeof introJs === 'undefined') {
+        alert('教學提示套件載入中，請稍後再試。');
+        return;
+    }
+    
+    introJs().setOptions({
+        showBullets: true,
+        showProgress: true,
+        exitOnOverlayClick: true,
+        steps: [
+            {
+                title: '歡迎使用活動地圖產生器',
+                intro: '這是一個快速建立活動地圖的工具，可以標示目的地、停車場、路線等資訊。'
+            },
+            {
+                element: '#tool-select',
+                title: '選擇工具',
+                intro: '使用選擇工具可以拖曳移動標記，或點擊標記進行編輯。'
+            },
+            {
+                element: '#tool-destination',
+                title: '標記目的地',
+                intro: '點擊此工具後，在地圖上點擊即可新增目的地標記。'
+            },
+            {
+                element: '#tool-route',
+                title: '繪製路線',
+                intro: '點擊此工具後，在地圖上點擊多個點即可繪製行進路線。'
+            },
+            {
+                element: '#tool-text',
+                title: '新增文字方塊',
+                intro: '點擊此工具後，在地圖上點擊即可新增文字註解。'
+            },
+            {
+                element: '#btn-event-info',
+                title: '活動資訊',
+                intro: '點擊這裡可以編輯活動的詳細資訊，如時間、地址、聯絡方式等。'
+            },
+            {
+                element: '#btn-share',
+                title: '分享地圖',
+                intro: '產生唯讀的檢視頁面，參與者可以看到地圖但無法編輯。'
+            },
+            {
+                element: '#btn-screenshot',
+                title: '匯出截圖',
+                intro: '將目前的地圖截圖存成圖片檔案。'
+            },
+            {
+                element: '#btn-export-pdf',
+                title: '匯出 PDF',
+                intro: '將地圖和活動資訊匯出成 PDF 檔案。'
+            },
+            {
+                title: '開始使用',
+                intro: '現在就開始建立你的活動地圖吧！有任何問題都可以點擊「❓ 教學」按鈕。'
+            }
+        ]
+    }).start();
+}
+
+// ========================================
+// 輔助函式
+// ========================================
+
+function showLoading(message = '載入中...') {
+    const overlay = document.createElement('div');
+    overlay.className = 'loading-overlay';
+    overlay.id = 'loading-overlay';
+    overlay.innerHTML = `<div class="loading-spinner"><p>${message}</p></div>`;
+    document.body.appendChild(overlay);
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+        overlay.remove();
     }
 }

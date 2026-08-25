@@ -19,17 +19,38 @@
             <span class="version">v1.0</span>
         </div>
         <div class="header-right">
-            <button id="btn-projects" class="btn btn-secondary" title="專案管理">
+            <button id="btn-projects" class="btn btn-secondary" title="專案管理" data-intro="1">
                 📁 專案
             </button>
-            <button id="btn-export" class="btn btn-secondary" title="匯出">
+            <button id="btn-event-info" class="btn btn-secondary" title="活動資訊" data-intro="2">
+                📋 資訊
+            </button>
+            <button id="btn-export" class="btn btn-secondary" title="匯出 JSON">
                 💾 匯出
             </button>
             <button id="btn-import" class="btn btn-secondary" title="匯入">
                 📂 匯入
             </button>
+            <button id="btn-import-kml" class="btn btn-secondary" title="匯入 KML/GPX">
+                🗺️ 匯入地圖
+            </button>
+            <button id="btn-screenshot" class="btn btn-secondary" title="匯出截圖">
+                📷 截圖
+            </button>
+            <button id="btn-export-pdf" class="btn btn-secondary" title="匯出 PDF">
+                📄 PDF
+            </button>
+            <button id="btn-share" class="btn btn-secondary" title="分享連結">
+                🔗 分享
+            </button>
             <button id="btn-print" class="btn btn-secondary" title="列印">
                 🖨️ 列印
+            </button>
+            <button id="btn-weather" class="btn btn-secondary" title="天氣圖層">
+                🌤️ 天氣
+            </button>
+            <button id="btn-tutorial" class="btn btn-secondary" title="使用教學">
+                ❓ 教學
             </button>
             <button id="btn-export-html" class="btn btn-primary" title="匯出靜態HTML">
                 🌐 匯出網頁
@@ -439,8 +460,130 @@
         </div>
     </dialog>
 
+    <!-- 活動資訊卡片對話框 -->
+    <dialog id="dialog-event-info" class="dialog dialog-wide">
+        <div class="dialog-header">
+            <h2>📋 活動資訊</h2>
+            <button id="btn-close-event-info" class="btn-icon">✕</button>
+        </div>
+        <div class="dialog-body">
+            <div class="event-info-grid">
+                <label>
+                    活動名稱
+                    <input type="text" id="event-name" placeholder="例如：2024 音樂節" />
+                </label>
+                <label>
+                    活動日期
+                    <input type="date" id="event-date" />
+                </label>
+                <label>
+                    活動時間
+                    <input type="text" id="event-time" placeholder="例如：10:00 - 22:00" />
+                </label>
+                <label>
+                    活動地址
+                    <input type="text" id="event-address" placeholder="例如：台北市信義區松壽路20號" />
+                </label>
+                <label>
+                    主辦單位
+                    <input type="text" id="event-organizer" placeholder="例如：XX文化基金會" />
+                </label>
+                <label>
+                    聯絡電話
+                    <input type="text" id="event-phone" placeholder="例如：02-12345678" />
+                </label>
+                <label>
+                    聯絡信箱
+                    <input type="email" id="event-email" placeholder="例如：info@example.com" />
+                </label>
+                <label>
+                    活動網址
+                    <input type="url" id="event-url" placeholder="例如：https://example.com" />
+                </label>
+                <label class="full-width">
+                    活動說明
+                    <textarea id="event-description" placeholder="活動簡述、注意事項等" rows="3"></textarea>
+                </label>
+                <label class="full-width">
+                    交通資訊
+                    <textarea id="event-transport" placeholder="例如：捷運板南線市政府站3號出口步行5分鐘" rows="3"></textarea>
+                </label>
+            </div>
+            <div class="dialog-actions">
+                <button id="btn-cancel-event-info" class="btn btn-secondary">取消</button>
+                <button id="btn-confirm-event-info" class="btn btn-primary">儲存</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 匯入 KML/GPX 對話框 -->
+    <dialog id="dialog-import-kml" class="dialog">
+        <div class="dialog-header">
+            <h2>🗺️ 匯入 KML/GPX</h2>
+            <button id="btn-close-import-kml" class="btn-icon">✕</button>
+        </div>
+        <div class="dialog-body">
+            <div class="import-zone">
+                <input type="file" id="file-import-kml" accept=".kml,.gpx,.xml" hidden />
+                <label for="file-import-kml" class="import-label">
+                    <span class="import-icon">🗺️</span>
+                    <span>點擊選擇 KML 或 GPX 檔案</span>
+                    <span class="import-hint">支援 Google My Maps、GPS 裝置匯出的檔案</span>
+                </label>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 分享連結對話框 -->
+    <dialog id="dialog-share" class="dialog">
+        <div class="dialog-header">
+            <h2>🔗 分享連結</h2>
+            <button id="btn-close-share" class="btn-icon">✕</button>
+        </div>
+        <div class="dialog-body">
+            <p class="share-info">產生一個唯讀的檢視頁面，參與者可以看到地圖但無法編輯。</p>
+            <div id="share-qr" class="share-qr"></div>
+            <div class="share-link-box">
+                <input type="text" id="share-link" readonly placeholder="產生中..." />
+                <button id="btn-copy-share-link" class="btn btn-primary">複製</button>
+            </div>
+            <div class="dialog-actions">
+                <button id="btn-cancel-share" class="btn btn-secondary">關閉</button>
+                <button id="btn-download-share" class="btn btn-primary">下載檢視頁面</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 天氣圖層對話框 -->
+    <dialog id="dialog-weather" class="dialog">
+        <div class="dialog-header">
+            <h2>🌤️ 天氣圖層</h2>
+            <button id="btn-close-weather" class="btn-icon">✕</button>
+        </div>
+        <div class="dialog-body">
+            <p class="weather-info">顯示活動地點的即時天氣資訊。</p>
+            <div id="weather-display" class="weather-display">
+                <p>請先在「活動資訊」中設定活動地址。</p>
+            </div>
+            <div class="dialog-actions">
+                <button id="btn-cancel-weather" class="btn btn-secondary">關閉</button>
+                <button id="btn-refresh-weather" class="btn btn-primary">重新整理</button>
+            </div>
+        </div>
+    </dialog>
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- jsPDF (PDF 匯出) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- html2canvas (截圖) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Intro.js (教學提示) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.0.0/introjs.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.0.0/intro.min.js"></script>
     
     <!-- 主要邏輯 -->
     <script src="app.js"></script>
