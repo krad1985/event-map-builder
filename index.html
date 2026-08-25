@@ -85,9 +85,9 @@
                     <span class="tool-icon">🅿️</span>
                     <span class="tool-label">停車場</span>
                 </button>
-                <button id="tool-roadside" class="tool-btn" data-tool="roadside" title="路邊停車">
+                <button id="tool-roadside" class="tool-btn" data-tool="roadside" title="小車">
                     <span class="tool-icon">🚗</span>
-                    <span class="tool-label">路邊停車</span>
+                    <span class="tool-label">小車</span>
                 </button>
                 <button id="tool-bus" class="tool-btn" data-tool="bus" title="遊覽車停靠點">
                     <span class="tool-icon">🚌</span>
@@ -130,6 +130,11 @@
                 <button id="tool-delete" class="tool-btn" data-tool="delete" title="刪除 (Del)">
                     <span class="tool-icon">🗑️</span>
                     <span class="tool-label">刪除</span>
+                </button>
+                <div class="toolbar-separator"></div>
+                <button id="btn-lock-map" class="tool-btn" title="鎖定地圖 (L)">
+                    <span class="tool-icon">🔓</span>
+                    <span class="tool-label">鎖定</span>
                 </button>
             </div>
         </div>
@@ -244,7 +249,7 @@
                     </label>
                 </div>
 
-                <!-- 路邊停車屬性 -->
+                <!-- 小車屬性 -->
                 <div id="props-roadside" class="props-section hidden">
                     <label>
                         路段名稱

@@ -255,6 +255,17 @@ kbd {
     white-space: nowrap;
 }
 
+.toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0 4px;
+}
+
+.tool-btn.locked {
+    background: #e74c3c;
+}
+
 /* 設定區 */
 .setting-group {
     display: flex;
@@ -739,35 +750,16 @@ dialog::backdrop {
     font-size: 14px;
 }
 
-/* 平坦車輛圖標 */
+/* 平坦車輛圖標 - 只顯示 emoji */
 .vehicle-marker {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 24px;
-    border-radius: 4px;
-    font-size: 14px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    color: white;
-    font-weight: bold;
-}
-
-.vehicle-marker.bus {
-    background: #27ae60;
-}
-
-.vehicle-marker.taxi {
-    background: #f1c40f;
-    color: #333;
-}
-
-.vehicle-marker.accessible {
-    background: #3498db;
-}
-
-.vehicle-marker.roadside {
-    background: #f39c12;
+    width: 28px;
+    height: 28px;
+    font-size: 20px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    cursor: pointer;
 }
 
 /* 標記 Popup 內容 */
@@ -1088,4 +1080,29 @@ body.tool-delete .text-marker {
 
 .empty-state-text {
     font-size: 0.9rem;
+}
+
+/* ========================================
+   Toast 通知
+   ======================================== */
+.toast-notification {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #2c3e50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.toast-notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }

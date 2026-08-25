@@ -24,6 +24,7 @@ let currentPath = [];
 let pendingTextLatLng = null;
 let routePreview = null;
 let polygonPreview = null;
+let rectanglePreview = null;
 let lastClickTime = 0;
 
 // 圖層群組
@@ -37,6 +38,9 @@ let currentBasemap = 'osm';
 let undoHistory = [];
 let undoIndex = -1;
 const MAX_UNDO = 50;
+
+// 地圖鎖定
+let mapLocked = false;
 
 // ========================================
 // 初始化
@@ -96,6 +100,8 @@ function initMap() {
     map.on('click', onMapClick);
     map.on('mousemove', onMapMouseMove);
     map.on('dblclick', onMapDoubleClick);
+    map.on('mousedown', onMapMouseDown);
+    map.on('mouseup', onMapMouseUp);
 }
 
 // ========================================
@@ -184,6 +190,9 @@ function bindEvents() {
 
     // 圖層控制
     document.getElementById('layer-destinations').addEventListener('change', toggleLayer);
+
+    // 鎖定地圖
+    document.getElementById('btn-lock-map').addEventListener('click', toggleMapLock);
     document.getElementById('layer-parking').addEventListener('change', toggleLayer);
     document.getElementById('layer-roadside').addEventListener('change', toggleLayer);
     document.getElementById('layer-bus').addEventListener('change', toggleLayer);
@@ -251,7 +260,7 @@ function setTool(tool) {
     document.getElementById('polygon-hint').style.display = (tool === 'polygon') ? 'flex' : 'none';
     
     // 結束進行中的繪製
-    if (tool !== 'draw' && isDrawing) finishDrawing();
+    if (tool !== 'draw' && tool !== 'rectangle' && isDrawing) finishDrawing();
     if (tool !== 'route' && isDrawingRoute) finishRoute();
     if (tool !== 'polygon' && isDrawingPolygon) finishPolygon();
     
@@ -296,10 +305,6 @@ function onMapClick(e) {
             isDrawing = true;
             updateDrawingPreview();
             break;
-        case 'rectangle':
-            currentPath = [[lat, lng]];
-            isDrawing = true;
-            break;
         case 'polygon':
             currentPath.push([lat, lng]);
             isDrawingPolygon = true;
@@ -312,12 +317,10 @@ function onMapClick(e) {
 }
 
 function onMapMouseMove(e) {
-    if (isDrawing && currentPath.length > 0) {
-        if (currentTool === 'rectangle') {
-            updateRectanglePreview(e.latlng);
-        } else {
-            updateDrawingPreview(e.latlng);
-        }
+    if (currentTool === 'rectangle' && isDrawing && currentPath.length > 0) {
+        updateRectanglePreview(e.latlng);
+    } else if (currentTool === 'draw' && isDrawing && currentPath.length > 0) {
+        updateDrawingPreview(e.latlng);
     }
     if (isDrawingRoute && currentPath.length > 0) {
         updateRoutePreview(e.latlng);
@@ -331,6 +334,21 @@ function onMapDoubleClick(e) {
     // 雙擊結束繪製
     if (isDrawingRoute) finishRoute();
     if (isDrawingPolygon) finishPolygon();
+}
+
+function onMapMouseDown(e) {
+    if (currentTool === 'rectangle') {
+        const { lat, lng } = e.latlng;
+        currentPath = [[lat, lng]];
+        isDrawing = true;
+    }
+}
+
+function onMapMouseUp(e) {
+    if (isDrawing && currentTool === 'rectangle' && currentPath.length === 1) {
+        const { lat, lng } = e.latlng;
+        finishRectangle(lat, lng);
+    }
 }
 
 // ========================================
@@ -357,13 +375,13 @@ function addMarkerToMap(data) {
     
     let icon;
     if (['bus', 'taxi', 'accessible', 'roadside'].includes(type)) {
-        // 平坦車輛圖標
+        // 車輛圖標 - 只顯示 emoji
         icon = L.divIcon({
             className: 'vehicle-marker-container',
-            html: `<div class="vehicle-marker ${type}">${getMarkerEmoji(type)}</div>`,
-            iconSize: [36, 24],
-            iconAnchor: [18, 12],
-            popupAnchor: [0, -12]
+            html: `<div class="vehicle-marker">${getMarkerEmoji(type)}</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+            popupAnchor: [0, -14]
         });
     } else {
         // 水滴型標記
@@ -654,7 +672,7 @@ function deleteDrawing(id) {
 // ========================================
 
 function updateRectanglePreview(latLng) {
-    if (drawings['_preview']) { shapeLayer.removeLayer(drawings['_preview']); }
+    if (rectanglePreview) { shapeLayer.removeLayer(rectanglePreview); rectanglePreview = null; }
     if (currentPath.length < 1) return;
     
     const start = currentPath[0];
@@ -662,13 +680,12 @@ function updateRectanglePreview(latLng) {
     const opacity = parseFloat(document.getElementById('shape-opacity').value);
     
     const bounds = [[start[0], start[1]], [latLng.lat, latLng.lng]];
-    const preview = L.rectangle(bounds, { color, weight: 2, opacity, fillOpacity: opacity, dashArray: '5, 5', interactive: false });
-    preview.addTo(shapeLayer);
-    drawings['_preview'] = preview;
+    rectanglePreview = L.rectangle(bounds, { color, weight: 2, opacity, fillOpacity: opacity, dashArray: '5, 5', interactive: false });
+    rectanglePreview.addTo(shapeLayer);
 }
 
 function finishRectangle(endLat, endLng) {
-    if (drawings['_preview']) { shapeLayer.removeLayer(drawings['_preview']); delete drawings['_preview']; }
+    if (rectanglePreview) { shapeLayer.removeLayer(rectanglePreview); rectanglePreview = null; }
     if (currentPath.length < 1) { currentPath = []; isDrawing = false; return; }
     
     const start = currentPath[0];
@@ -996,7 +1013,7 @@ function applyProperties() {
             data.color = document.getElementById('prop-parking-color').value;
             break;
         case 'roadside':
-            data.name = document.getElementById('prop-roadside-name').value.trim() || '路邊停車';
+            data.name = document.getElementById('prop-roadside-name').value.trim() || '小車';
             data.note = document.getElementById('prop-roadside-note').value.trim();
             break;
         case 'bus':
@@ -1019,7 +1036,7 @@ function applyProperties() {
     // 重建圖標
     let icon;
     if (['bus', 'taxi', 'accessible', 'roadside'].includes(data.type)) {
-        icon = L.divIcon({ className: 'vehicle-marker-container', html: `<div class="vehicle-marker ${data.type}">${getMarkerEmoji(data.type)}</div>`, iconSize: [36, 24], iconAnchor: [18, 12], popupAnchor: [0, -12] });
+        icon = L.divIcon({ className: 'vehicle-marker-container', html: `<div class="vehicle-marker">${getMarkerEmoji(data.type)}</div>`, iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -14] });
     } else {
         icon = L.divIcon({ className: 'custom-marker-container', html: `<div class="custom-marker" style="background: ${data.color}"><span>${getMarkerEmoji(data.type)}</span></div>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] });
     }
@@ -1290,7 +1307,7 @@ function generatePrintLegend() {
     
     if (destinations.length > 0) html += `<div class="legend-section"><h3>📍 目的地</h3>${destinations.map(m => `<div class="legend-item"><div class="legend-icon destination">📍</div><div class="legend-text"><div class="legend-name">${escapeHtml(m.name)}</div>${m.note ? `<div class="legend-note">${escapeHtml(m.note)}</div>` : ''}</div></div>`).join('')}</div>`;
     if (parkingSpots.length > 0) html += `<div class="legend-section"><h3>🅿️ 停車場</h3>${parkingSpots.map(m => `<div class="legend-item"><div class="legend-icon parking">🅿️</div><div class="legend-text"><div class="legend-name">${escapeHtml(m.name)}</div>${m.note ? `<div class="legend-note">${escapeHtml(m.note)}</div>` : ''}</div></div>`).join('')}</div>`;
-    if (roadsideSpots.length > 0) html += `<div class="legend-section"><h3>🚗 路邊停車</h3>${roadsideSpots.map(m => `<div class="legend-item"><div class="legend-icon roadside">🚗</div><div class="legend-text"><div class="legend-name">${escapeHtml(m.name)}</div>${m.note ? `<div class="legend-note">${escapeHtml(m.note)}</div>` : ''}</div></div>`).join('')}</div>`;
+    if (roadsideSpots.length > 0) html += `<div class="legend-section"><h3>🚗 小車</h3>${roadsideSpots.map(m => `<div class="legend-item"><div class="legend-icon roadside">🚗</div><div class="legend-text"><div class="legend-name">${escapeHtml(m.name)}</div>${m.note ? `<div class="legend-note">${escapeHtml(m.note)}</div>` : ''}</div></div>`).join('')}</div>`;
     if (busSpots.length > 0) html += `<div class="legend-section"><h3>🚌 遊覽車</h3>${busSpots.map(m => `<div class="legend-item"><div class="legend-icon bus">🚌</div><div class="legend-text"><div class="legend-name">${escapeHtml(m.name)}</div>${m.note ? `<div class="legend-note">${escapeHtml(m.note)}</div>` : ''}</div></div>`).join('')}</div>`;
     if (taxiSpots.length > 0) html += `<div class="legend-section"><h3>🚕 計程車</h3>${taxiSpots.map(m => `<div class="legend-item"><div class="legend-icon taxi">🚕</div><div class="legend-text"><div class="legend-name">${escapeHtml(m.name)}</div>${m.note ? `<div class="legend-note">${escapeHtml(m.note)}</div>` : ''}</div></div>`).join('')}</div>`;
     if (accessibleSpots.length > 0) html += `<div class="legend-section"><h3>♿ 無障礙</h3>${accessibleSpots.map(m => `<div class="legend-item"><div class="legend-icon accessible">♿</div><div class="legend-text"><div class="legend-name">${escapeHtml(m.name)}</div>${m.note ? `<div class="legend-note">${escapeHtml(m.note)}</div>` : ''}</div></div>`).join('')}</div>`;
@@ -1560,6 +1577,31 @@ function toggleLayer(e) {
 }
 
 // ========================================
+// 地圖鎖定
+// ========================================
+
+function toggleMapLock() {
+    mapLocked = !mapLocked;
+    const btn = document.getElementById('btn-lock-map');
+    const icon = btn.querySelector('.tool-icon');
+    const label = btn.querySelector('.tool-label');
+    
+    if (mapLocked) {
+        map.dragging.disable();
+        icon.textContent = '🔒';
+        label.textContent = '解鎖';
+        btn.classList.add('locked');
+        showToast('地圖已鎖定');
+    } else {
+        map.dragging.enable();
+        icon.textContent = '🔓';
+        label.textContent = '鎖定';
+        btn.classList.remove('locked');
+        showToast('地圖已解鎖');
+    }
+}
+
+// ========================================
 // 鍵盤快捷鍵
 // ========================================
 
@@ -1599,6 +1641,7 @@ function handleKeyboard(e) {
             case 'b': setTool('draw'); break;
             case 'u': setTool('rectangle'); break;
             case 'g': setTool('polygon'); break;
+            case 'l': toggleMapLock(); break;
         }
     }
 }
@@ -1610,7 +1653,7 @@ function handleKeyboard(e) {
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
 
 function getDefaultName(type) {
-    const names = { destination: '目的地', parking: '停車場', roadside: '路邊停車', bus: '遊覽車停靠點', taxi: '計程車搭乘處', accessible: '無障礙車位' };
+    const names = { destination: '目的地', parking: '停車場', roadside: '小車', bus: '遊覽車停靠點', taxi: '計程車搭乘處', accessible: '無障礙車位' };
     return names[type] || '標記';
 }
 
@@ -1663,6 +1706,18 @@ function showLoading(msg = '載入中...') {
 function hideLoading() {
     const overlay = document.getElementById('loading-overlay');
     if (overlay) overlay.remove();
+}
+
+function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
 }
 
 function exportStaticHTML() {
