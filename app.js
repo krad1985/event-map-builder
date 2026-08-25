@@ -62,7 +62,7 @@ let currentPath = []; // 目前畫筆的路徑
 let pendingTextLatLng = null; // 待新增文字的座標
 
 // 圖層群組
-let destinationLayer, parkingLayer, roadsideLayer, drawingLayer, routeLayer, textLayer;
+let destinationLayer, parkingLayer, roadsideLayer, busLayer, taxiLayer, accessibleLayer, drawingLayer, routeLayer, textLayer;
 
 // 底圖圖層
 let basemapLayers = {};
@@ -123,6 +123,9 @@ function initMap() {
     destinationLayer = L.layerGroup().addTo(map);
     parkingLayer = L.layerGroup().addTo(map);
     roadsideLayer = L.layerGroup().addTo(map);
+    busLayer = L.layerGroup().addTo(map);
+    taxiLayer = L.layerGroup().addTo(map);
+    accessibleLayer = L.layerGroup().addTo(map);
     drawingLayer = L.layerGroup().addTo(map);
     routeLayer = L.layerGroup().addTo(map);
     textLayer = L.layerGroup().addTo(map);
@@ -579,6 +582,15 @@ function onMapClick(e) {
         case 'roadside':
             addMarker('roadside', lat, lng);
             break;
+        case 'bus':
+            addMarker('bus', lat, lng);
+            break;
+        case 'taxi':
+            addMarker('taxi', lat, lng);
+            break;
+        case 'accessible':
+            addMarker('accessible', lat, lng);
+            break;
         case 'text':
             // 文字模式下開啟對話框
             pendingTextLatLng = [lat, lng];
@@ -833,6 +845,21 @@ function openPropertiesPanel(data) {
                 document.getElementById('prop-roadside-name').value = data.name || '';
                 document.getElementById('prop-roadside-note').value = data.note || '';
                 break;
+            case 'bus':
+                document.getElementById('prop-bus-name').value = data.name || '';
+                document.getElementById('prop-bus-note').value = data.note || '';
+                document.getElementById('prop-bus-color').value = data.color || '#27ae60';
+                break;
+            case 'taxi':
+                document.getElementById('prop-taxi-name').value = data.name || '';
+                document.getElementById('prop-taxi-note').value = data.note || '';
+                document.getElementById('prop-taxi-color').value = data.color || '#f1c40f';
+                break;
+            case 'accessible':
+                document.getElementById('prop-accessible-name').value = data.name || '';
+                document.getElementById('prop-accessible-note').value = data.note || '';
+                document.getElementById('prop-accessible-color').value = data.color || '#3498db';
+                break;
             case 'draw':
                 document.getElementById('prop-draw-label').value = data.label || '';
                 break;
@@ -922,6 +949,21 @@ function applyProperties() {
         case 'roadside':
             data.name = document.getElementById('prop-roadside-name').value.trim() || '路邊停車';
             data.note = document.getElementById('prop-roadside-note').value.trim();
+            break;
+        case 'bus':
+            data.name = document.getElementById('prop-bus-name').value.trim() || '遊覽車停靠點';
+            data.note = document.getElementById('prop-bus-note').value.trim();
+            data.color = document.getElementById('prop-bus-color').value;
+            break;
+        case 'taxi':
+            data.name = document.getElementById('prop-taxi-name').value.trim() || '計程車搭乘處';
+            data.note = document.getElementById('prop-taxi-note').value.trim();
+            data.color = document.getElementById('prop-taxi-color').value;
+            break;
+        case 'accessible':
+            data.name = document.getElementById('prop-accessible-name').value.trim() || '無障礙車位';
+            data.note = document.getElementById('prop-accessible-note').value.trim();
+            data.color = document.getElementById('prop-accessible-color').value;
             break;
     }
     
@@ -1122,6 +1164,15 @@ function toggleLayer(e) {
             break;
         case 'roadside':
             layer = roadsideLayer;
+            break;
+        case 'bus':
+            layer = busLayer;
+            break;
+        case 'taxi':
+            layer = taxiLayer;
+            break;
+        case 'accessible':
+            layer = accessibleLayer;
             break;
         case 'routes':
             layer = routeLayer;
@@ -1586,6 +1637,9 @@ function getDefaultName(type) {
         case 'destination': return '目的地';
         case 'parking': return '停車場';
         case 'roadside': return '路邊停車';
+        case 'bus': return '遊覽車停靠點';
+        case 'taxi': return '計程車搭乘處';
+        case 'accessible': return '無障礙車位';
         default: return '標記';
     }
 }
@@ -1595,6 +1649,9 @@ function getDefaultColor(type) {
         case 'destination': return '#e74c3c';
         case 'parking': return '#3498db';
         case 'roadside': return '#f39c12';
+        case 'bus': return '#27ae60';
+        case 'taxi': return '#f1c40f';
+        case 'accessible': return '#3498db';
         default: return '#95a5a6';
     }
 }
@@ -1604,6 +1661,9 @@ function getMarkerEmoji(type) {
         case 'destination': return '📍';
         case 'parking': return '🅿️';
         case 'roadside': return '🚗';
+        case 'bus': return '🚌';
+        case 'taxi': return '🚕';
+        case 'accessible': return '♿';
         default: return '📌';
     }
 }
@@ -1613,6 +1673,9 @@ function getLayerByType(type) {
         case 'destination': return destinationLayer;
         case 'parking': return parkingLayer;
         case 'roadside': return roadsideLayer;
+        case 'bus': return busLayer;
+        case 'taxi': return taxiLayer;
+        case 'accessible': return accessibleLayer;
         default: return destinationLayer;
     }
 }

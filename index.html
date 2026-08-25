@@ -59,6 +59,18 @@
                     <span class="tool-icon">🚗</span>
                     <span class="tool-label">路邊停車</span>
                 </button>
+                <button id="tool-bus" class="tool-btn" data-tool="bus" title="標記遊覽車停靠點">
+                    <span class="tool-icon">🚌</span>
+                    <span class="tool-label">遊覽車</span>
+                </button>
+                <button id="tool-taxi" class="tool-btn" data-tool="taxi" title="標記計程車/接送點">
+                    <span class="tool-icon">🚕</span>
+                    <span class="tool-label">計程車</span>
+                </button>
+                <button id="tool-accessible" class="tool-btn" data-tool="accessible" title="標記無障礙車位">
+                    <span class="tool-icon">♿</span>
+                    <span class="tool-label">無障礙</span>
+                </button>
                 <button id="tool-text" class="tool-btn" data-tool="text" title="文字方塊">
                     <span class="tool-icon">💬</span>
                     <span class="tool-label">文字</span>
@@ -155,6 +167,18 @@
                         <span>🚗 路邊停車</span>
                     </label>
                     <label class="layer-toggle">
+                        <input type="checkbox" id="layer-bus" checked />
+                        <span>🚌 遊覽車</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="layer-taxi" checked />
+                        <span>🚕 計程車</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="layer-accessible" checked />
+                        <span>♿ 無障礙</span>
+                    </label>
+                    <label class="layer-toggle">
                         <input type="checkbox" id="layer-routes" checked />
                         <span>➡️ 路線</span>
                     </label>
@@ -221,6 +245,54 @@
                     <label>
                         備註
                         <textarea id="prop-roadside-note" placeholder="例如： Monday to Friday 8am-6pm"></textarea>
+                    </label>
+                </div>
+
+                <!-- 遊覽車屬性 -->
+                <div id="props-bus" class="props-section hidden">
+                    <label>
+                        名稱
+                        <input type="text" id="prop-bus-name" placeholder="例如：遊覽車停靠區A" />
+                    </label>
+                    <label>
+                        備註
+                        <textarea id="prop-bus-note" placeholder="例如：可停3輛遊覽車"></textarea>
+                    </label>
+                    <label>
+                        圖標顏色
+                        <input type="color" id="prop-bus-color" value="#27ae60" />
+                    </label>
+                </div>
+
+                <!-- 計程車屬性 -->
+                <div id="props-taxi" class="props-section hidden">
+                    <label>
+                        名稱
+                        <input type="text" id="prop-taxi-name" placeholder="例如：計程車搭乘處" />
+                    </label>
+                    <label>
+                        備註
+                        <textarea id="prop-taxi-note" placeholder="例如：排隊等候區"></textarea>
+                    </label>
+                    <label>
+                        圖標顏色
+                        <input type="color" id="prop-taxi-color" value="#f1c40f" />
+                    </label>
+                </div>
+
+                <!-- 無障礙車位屬性 -->
+                <div id="props-accessible" class="props-section hidden">
+                    <label>
+                        名稱
+                        <input type="text" id="prop-accessible-name" placeholder="例如：無障礙車位" />
+                    </label>
+                    <label>
+                        備註
+                        <textarea id="prop-accessible-note" placeholder="例如：需出示身心障礙手冊"></textarea>
+                    </label>
+                    <label>
+                        圖標顏色
+                        <input type="color" id="prop-accessible-color" value="#3498db" />
                     </label>
                 </div>
 
