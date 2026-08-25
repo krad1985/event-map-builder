@@ -1,5 +1,5 @@
 /* ========================================
-   活動地圖產生器 - 樣式表
+   活動地圖產生器 v2.0 - 樣式表
    ======================================== */
 
 /* CSS 變數 */
@@ -16,8 +16,8 @@
     --border: #bdc3c7;
     --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     --radius: 8px;
-    --header-height: 60px;
-    --toolbar-width: 80px;
+    --header-height: 50px;
+    --toolbar-height: 90px;
     --panel-width: 280px;
 }
 
@@ -50,7 +50,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 0 16px;
     z-index: 1000;
     box-shadow: var(--shadow);
 }
@@ -58,16 +58,16 @@ html, body {
 .header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .logo {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 600;
 }
 
 .version {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     background: var(--primary);
     padding: 2px 8px;
     border-radius: 12px;
@@ -75,7 +75,8 @@ html, body {
 
 .header-right {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 /* ========================================
@@ -84,18 +85,24 @@ html, body {
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
+    gap: 4px;
+    padding: 6px 12px;
     border: none;
     border-radius: var(--radius);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .btn:hover {
     transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.75rem;
 }
 
 .btn-primary {
@@ -131,12 +138,12 @@ html, body {
 }
 
 .btn-icon {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border: none;
     background: transparent;
     color: inherit;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     cursor: pointer;
     border-radius: var(--radius);
     display: flex;
@@ -149,42 +156,75 @@ html, body {
 }
 
 /* ========================================
-   主要佈局
+   上方橫列工具列
    ======================================== */
-.main-container {
+.toolbar-horizontal {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    background: #34495e;
+    z-index: 999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.toolbar-row {
     display: flex;
-    height: calc(100vh - var(--header-height));
-    margin-top: var(--header-height);
+    align-items: center;
+    padding: 6px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
-/* ========================================
-   左側工具列
-   ======================================== */
-.toolbar {
-    width: var(--toolbar-width);
-    background: var(--bg-dark);
-    color: var(--text-light);
-    padding: 16px 8px;
-    overflow-y: auto;
-    flex-shrink: 0;
+.toolbar-row:first-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.tool-group {
-    margin-bottom: 24px;
+.toolbar-settings {
+    background: #2c3e50;
+    padding: 4px 12px;
 }
 
-.tool-group-title {
+.toolbar-hint {
+    background: #1a252f;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+.hint-text {
+    color: #ecf0f1;
+}
+
+kbd {
+    background: #555;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    border: 1px solid #777;
+}
+
+.tool-group-inline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tool-group-label {
     font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
     color: rgba(255, 255, 255, 0.5);
-    margin-bottom: 12px;
-    padding-left: 8px;
+    margin-right: 4px;
+    white-space: nowrap;
+}
+
+.tool-divider {
+    width: 1px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 0 4px;
 }
 
 .tool-btn {
-    width: 100%;
-    padding: 12px 8px;
+    padding: 6px 10px;
     border: none;
     background: transparent;
     color: var(--text-light);
@@ -193,9 +233,9 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     transition: all 0.2s ease;
-    margin-bottom: 4px;
+    min-width: 50px;
 }
 
 .tool-btn:hover {
@@ -207,60 +247,74 @@ html, body {
 }
 
 .tool-icon {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
 }
 
 .tool-label {
+    font-size: 0.65rem;
+    white-space: nowrap;
+}
+
+/* 設定區 */
+.setting-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.setting-group:last-child {
+    border-right: none;
+}
+
+.setting-label {
     font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
 }
 
-/* 畫筆設定 */
-.draw-settings {
-    padding: 8px;
-}
-
-.draw-settings label {
-    display: block;
+.toggle-label {
     font-size: 0.75rem;
-    margin-bottom: 8px;
+    color: #ecf0f1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
-.draw-settings input[type="color"] {
-    width: 100%;
-    height: 30px;
+.toggle-label input {
+    margin: 0;
+}
+
+.color-input {
+    width: 24px;
+    height: 24px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin-top: 4px;
+    padding: 0;
 }
 
-.draw-settings input[type="range"] {
-    width: 100%;
-    margin-top: 4px;
+.range-input {
+    width: 60px;
+    height: 16px;
 }
 
-/* 圖層控制 */
-.layer-controls {
-    padding: 8px;
-}
-
-.layer-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.8rem;
-    padding: 6px 8px;
+.select-input {
+    padding: 2px 4px;
     border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
+    border: none;
+    font-size: 0.75rem;
 }
 
-.layer-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.layer-toggle input[type="checkbox"] {
-    margin: 0;
+/* ========================================
+   主要佈局
+   ======================================== */
+.main-container {
+    display: flex;
+    height: calc(100vh - var(--header-height) - var(--toolbar-height));
+    margin-top: calc(var(--header-height) + var(--toolbar-height));
 }
 
 /* ========================================
@@ -271,10 +325,43 @@ html, body {
     background: #ddd;
 }
 
-/* Leaflet 地圖全高 */
 #map {
     width: 100%;
     height: 100%;
+}
+
+/* ========================================
+   滑鼠游標樣式
+   ======================================== */
+/* 預設游標 */
+body.tool-destination #map,
+body.tool-parking #map,
+body.tool-roadside #map,
+body.tool-bus #map,
+body.tool-taxi #map,
+body.tool-accessible #map {
+    cursor: crosshair !important;
+}
+
+body.tool-text #map {
+    cursor: text !important;
+}
+
+body.tool-route #map {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 12h12m0 0l-4-4m4 4l-4 4" stroke="%23e74c3c" stroke-width="2" fill="none"/></svg>') 12 12, crosshair !important;
+}
+
+body.tool-draw #map,
+body.tool-polygon #map {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="%23ff6b6b" opacity="0.5"/></svg>') 12 12, crosshair !important;
+}
+
+body.tool-rectangle #map {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="%233498db" opacity="0.5"/></svg>') 12 12, crosshair !important;
+}
+
+body.tool-delete #map {
+    cursor: not-allowed !important;
 }
 
 /* ========================================
@@ -298,7 +385,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border);
 }
 
@@ -332,11 +419,11 @@ html, body {
 .props-section input[type="date"],
 .props-section textarea {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     font-size: 0.9rem;
-    margin-top: 6px;
+    margin-top: 4px;
     transition: border-color 0.2s;
 }
 
@@ -348,23 +435,32 @@ html, body {
 }
 
 .props-section textarea {
-    min-height: 80px;
+    min-height: 60px;
     resize: vertical;
 }
 
 .props-section input[type="color"] {
     width: 100%;
-    height: 40px;
+    height: 36px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     cursor: pointer;
-    margin-top: 6px;
+    margin-top: 4px;
+}
+
+.props-section select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    margin-top: 4px;
 }
 
 .panel-actions {
-    padding-top: 16px;
+    padding-top: 12px;
     border-top: 1px solid var(--border);
-    margin-top: 16px;
+    margin-top: 12px;
 }
 
 /* ========================================
@@ -375,7 +471,7 @@ dialog {
     border-radius: var(--radius);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     padding: 0;
-    max-width: 500px;
+    max-width: 450px;
     width: 90%;
 }
 
@@ -383,11 +479,15 @@ dialog::backdrop {
     background: rgba(0, 0, 0, 0.5);
 }
 
+.dialog-wide {
+    max-width: 600px;
+}
+
 .dialog-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 20px;
+    padding: 14px 18px;
     border-bottom: 1px solid var(--border);
 }
 
@@ -396,23 +496,23 @@ dialog::backdrop {
 }
 
 .dialog-body {
-    padding: 20px;
+    padding: 18px;
 }
 
 .dialog-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     justify-content: flex-end;
-    margin-top: 20px;
+    margin-top: 18px;
 }
 
 /* 專案列表 */
 .project-actions {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .project-list {
-    max-height: 400px;
+    max-height: 350px;
     overflow-y: auto;
 }
 
@@ -420,7 +520,7 @@ dialog::backdrop {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     margin-bottom: 8px;
@@ -454,17 +554,17 @@ dialog::backdrop {
 
 .project-actions-btns {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
 .project-actions-btns button {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border: none;
     background: transparent;
     cursor: pointer;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .project-actions-btns button:hover {
@@ -475,7 +575,7 @@ dialog::backdrop {
 .import-zone {
     border: 2px dashed var(--border);
     border-radius: var(--radius);
-    padding: 40px 20px;
+    padding: 35px 18px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
@@ -503,21 +603,190 @@ dialog::backdrop {
     color: #7f8c8d;
 }
 
-/* ========================================
-   路線樣式
-   ======================================== */
-.route-select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
+/* 活動資訊卡片 */
+.event-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.event-info-grid label {
+    display: block;
     font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.event-info-grid label.full-width {
+    grid-column: span 2;
+}
+
+.event-info-grid input,
+.event-info-grid textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
     margin-top: 4px;
 }
 
+.event-info-grid input:focus,
+.event-info-grid textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* 分享連結 */
+.share-info {
+    margin-bottom: 14px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.share-qr {
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.share-qr img {
+    max-width: 180px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+.share-link-box {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.share-link-box input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    background: #f5f5f5;
+}
+
+/* 天氣圖層 */
+.weather-info {
+    margin-bottom: 14px;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.weather-display {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+}
+
+.weather-display .weather-icon {
+    font-size: 42px;
+    margin-bottom: 8px;
+}
+
+.weather-display .weather-temp {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.weather-display .weather-desc {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.weather-display .weather-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    text-align: left;
+    font-size: 0.85rem;
+}
+
+.weather-display .weather-detail {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background: white;
+    border-radius: 4px;
+}
+
 /* ========================================
-   文字方塊樣式
+   自訂標記樣式（水滴型）
    ======================================== */
+.custom-marker-container {
+    background: transparent;
+    border: none;
+}
+
+.custom-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.custom-marker span {
+    transform: rotate(45deg);
+    font-size: 14px;
+}
+
+/* 平坦車輛圖標 */
+.vehicle-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    color: white;
+    font-weight: bold;
+}
+
+.vehicle-marker.bus {
+    background: #27ae60;
+}
+
+.vehicle-marker.taxi {
+    background: #f1c40f;
+    color: #333;
+}
+
+.vehicle-marker.accessible {
+    background: #3498db;
+}
+
+.vehicle-marker.roadside {
+    background: #f39c12;
+}
+
+/* 標記 Popup 內容 */
+.marker-popup {
+    text-align: center;
+}
+
+.marker-popup h4 {
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.marker-popup p {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* 文字方塊 */
 .text-marker {
     background: white;
     border: 2px solid #333;
@@ -542,9 +811,7 @@ dialog::backdrop {
     outline-offset: 2px;
 }
 
-/* ========================================
-   路線標記樣式
-   ======================================== */
+/* 路線標記 */
 .route-marker-label {
     background: white;
     border: 2px solid #e74c3c;
@@ -558,431 +825,52 @@ dialog::backdrop {
 }
 
 /* ========================================
-   自訂標記樣式
+   刪除模式
    ======================================== */
-.custom-marker {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-
-.custom-marker.destination {
-    background: var(--danger);
-}
-
-.custom-marker.parking {
-    background: var(--primary);
-}
-
-.custom-marker.roadside {
-    background: var(--warning);
-}
-
-.custom-marker span {
-    transform: rotate(45deg);
-    font-size: 16px;
-}
-
-/* 標記 Popup 內容 */
-.marker-popup {
-    text-align: center;
-}
-
-.marker-popup h4 {
-    margin-bottom: 8px;
-    font-size: 1rem;
-}
-
-.marker-popup p {
-    margin: 4px 0;
-    font-size: 0.85rem;
-    color: #555;
-}
-
-/* ========================================
-   畫筆模式游標
-   ======================================== */
-body.drawing-mode {
-    cursor: crosshair !important;
-}
-
-body.drawing-mode #map {
-    cursor: crosshair !important;
-}
-
-/* ========================================
-   刪除模式游標
-   ======================================== */
-body.delete-mode .custom-marker {
+body.tool-delete .custom-marker,
+body.tool-delete .vehicle-marker,
+body.tool-delete .text-marker {
     cursor: pointer;
     animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
-    0%, 100% { transform: rotate(-45deg) scale(1); }
-    50% { transform: rotate(-45deg) scale(1.1); }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
 }
 
 /* ========================================
-   響應式設計
+   Toast 通知
    ======================================== */
-@media (max-width: 768px) {
-    .header {
-        padding: 0 12px;
-    }
-
-    .header-left {
-        gap: 8px;
-    }
-
-    .logo {
-        font-size: 1rem;
-    }
-
-    .version {
-        display: none;
-    }
-
-    .header-right .btn span:not(.tool-icon) {
-        display: none;
-    }
-
-    .toolbar {
-        width: 60px;
-        padding: 12px 4px;
-    }
-
-    .tool-label {
-        display: none;
-    }
-
-    .properties-panel {
-        position: fixed;
-        right: 0;
-        top: var(--header-height);
-        bottom: 0;
-        width: 280px;
-        z-index: 999;
-        transform: translateX(100%);
-    }
-
-    .properties-panel.visible {
-        transform: translateX(0);
-    }
-}
-
-/* ========================================
-   列印樣式
-   ======================================== */
-@media print {
-    body {
-        background: white;
-    }
-
-    .header,
-    .toolbar,
-    .properties-panel,
-    .leaflet-control-zoom,
-    .leaflet-control-attribution {
-        display: none !important;
-    }
-
-    .main-container {
-        margin-top: 0;
-        height: auto;
-    }
-
-    .map-container {
-        width: 100%;
-        height: 70vh;
-        page-break-after: always;
-    }
-
-    /* 列印時顯示標記列表 */
-    .print-legend {
-        display: block !important;
-        padding: 20px;
-        page-break-before: always;
-    }
-
-    .print-legend h2 {
-        margin-bottom: 16px;
-        font-size: 1.5rem;
-    }
-
-    .legend-section {
-        margin-bottom: 24px;
-    }
-
-    .legend-section h3 {
-        margin-bottom: 8px;
-        font-size: 1.1rem;
-        color: var(--text-dark);
-    }
-
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 8px 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .legend-icon {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        color: white;
-    }
-
-    .legend-icon.destination { background: var(--danger); }
-    .legend-icon.parking { background: var(--primary); }
-    .legend-icon.roadside { background: var(--warning); }
-
-    .legend-text {
-        flex: 1;
-    }
-
-    .legend-name {
-        font-weight: 600;
-    }
-
-    .legend-note {
-        font-size: 0.85rem;
-        color: #666;
-    }
-}
-
-/* 列印圖例（預設隱藏） */
-.print-legend {
-    display: none;
-}
-
-/* ========================================
-   工具提示
-   ======================================== */
-.tooltip {
-    position: absolute;
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--bg-dark);
-    color: var(--text-light);
-    padding: 8px 12px;
+    color: white;
+    padding: 12px 20px;
     border-radius: var(--radius);
-    font-size: 0.8rem;
-    pointer-events: none;
-    z-index: 1001;
-    white-space: nowrap;
-}
-
-/* ========================================
-   動畫
-   ======================================== */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.fade-in {
-    animation: fadeIn 0.3s ease;
-}
-
-/* ========================================
-   空狀態
-   ======================================== */
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #95a5a6;
-}
-
-.empty-state-icon {
-    font-size: 3rem;
-    margin-bottom: 12px;
-}
-
-.empty-state-text {
-    font-size: 0.9rem;
-}
-
-/* ========================================
-   寬版對話框
-   ======================================== */
-.dialog-wide {
-    max-width: 600px;
-}
-
-/* ========================================
-   活動資訊卡片
-   ======================================== */
-.event-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.event-info-grid label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.event-info-grid label.full-width {
-    grid-column: span 2;
-}
-
-.event-info-grid input,
-.event-info-grid textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.9rem;
-    margin-top: 6px;
-    transition: border-color 0.2s;
-}
-
-.event-info-grid input:focus,
-.event-info-grid textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-}
-
-/* 活動資訊卡片在地圖上的顯示 */
-.event-info-card {
-    background: white;
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-    max-width: 300px;
-    font-size: 13px;
-}
-
-.event-info-card h3 {
-    margin: 0 0 8px 0;
-    font-size: 16px;
-    color: var(--text-dark);
-}
-
-.event-info-card .info-row {
     display: flex;
-    gap: 8px;
-    margin-bottom: 6px;
-    color: #555;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
 }
 
-.event-info-card .info-label {
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-.event-info-card .info-value {
-    color: #333;
-}
-
-/* ========================================
-   分享連結
-   ======================================== */
-.share-info {
-    margin-bottom: 16px;
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.share-qr {
-    text-align: center;
-    margin-bottom: 16px;
-}
-
-.share-qr img {
-    max-width: 200px;
-    border: 1px solid #eee;
-    border-radius: 8px;
-}
-
-.share-link-box {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-}
-
-.share-link-box input {
-    flex: 1;
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.9rem;
-    background: #f5f5f5;
-}
-
-/* ========================================
-   天氣圖層
-   ======================================== */
-.weather-info {
-    margin-bottom: 16px;
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.weather-display {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-}
-
-.weather-display .weather-icon {
-    font-size: 48px;
-    margin-bottom: 8px;
-}
-
-.weather-display .weather-temp {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.weather-display .weather-desc {
-    color: #666;
-    margin-bottom: 12px;
-}
-
-.weather-display .weather-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    text-align: left;
-    font-size: 0.85rem;
-}
-
-.weather-display .weather-detail {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 8px;
-    background: white;
-    border-radius: 4px;
+.toast.hidden {
+    display: none;
 }
 
 /* ========================================
    教學提示
    ======================================== */
 .introjs-tooltip {
-    max-width: 350px;
-}
-
-.introjs-tooltipbuttons {
-    margin-top: 12px;
+    max-width: 320px;
 }
 
 /* ========================================
-   截圖/ PDF 載入
+   載入中
    ======================================== */
 .loading-overlay {
     position: fixed;
@@ -999,7 +887,7 @@ body.delete-mode .custom-marker {
 
 .loading-spinner {
     background: white;
-    padding: 24px 32px;
+    padding: 20px 28px;
     border-radius: 8px;
     text-align: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -1008,11 +896,11 @@ body.delete-mode .custom-marker {
 .loading-spinner::after {
     content: '';
     display: block;
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 12px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid var(--primary);
+    width: 36px;
+    height: 36px;
+    margin: 0 auto 10px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -1023,24 +911,181 @@ body.delete-mode .custom-marker {
 }
 
 /* ========================================
-   響應式補充
+   響應式設計
    ======================================== */
-@media (max-width: 900px) {
-    .event-info-grid {
-        grid-template-columns: 1fr;
+@media (max-width: 1200px) {
+    .toolbar-settings {
+        overflow-x: auto;
     }
     
-    .event-info-grid label.full-width {
-        grid-column: span 1;
+    .setting-group {
+        padding: 0 4px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 10px;
     }
     
-    .header-right {
-        flex-wrap: wrap;
-        justify-content: flex-end;
+    .header-left .logo {
+        font-size: 1rem;
     }
     
-    .header-right .btn {
-        font-size: 0.8rem;
-        padding: 6px 10px;
+    .header-right .version {
+        display: none;
     }
+    
+    .toolbar-row {
+        padding: 4px 8px;
+        gap: 4px;
+    }
+    
+    .tool-group-label {
+        display: none;
+    }
+    
+    .tool-divider {
+        display: none;
+    }
+    
+    .tool-btn {
+        padding: 4px 6px;
+        min-width: 40px;
+    }
+    
+    .tool-icon {
+        font-size: 1rem;
+    }
+    
+    .tool-label {
+        font-size: 0.6rem;
+    }
+    
+    .setting-group {
+        font-size: 0.7rem;
+    }
+    
+    .toggle-label {
+        font-size: 0.7rem;
+    }
+    
+    .properties-panel {
+        position: fixed;
+        right: 0;
+        top: calc(var(--header-height) + var(--toolbar-height));
+        bottom: 0;
+        width: 280px;
+        z-index: 999;
+    }
+}
+
+/* ========================================
+   列印樣式
+   ======================================== */
+@media print {
+    body {
+        background: white;
+    }
+    
+    .header,
+    .toolbar-horizontal,
+    .properties-panel,
+    .leaflet-control-zoom,
+    .leaflet-control-attribution {
+        display: none !important;
+    }
+    
+    .main-container {
+        margin-top: 0;
+        height: auto;
+    }
+    
+    .map-container {
+        width: 100%;
+        height: 70vh;
+        page-break-after: always;
+    }
+    
+    .print-legend {
+        display: block !important;
+        padding: 20px;
+        page-break-before: always;
+    }
+    
+    .print-legend h2 {
+        margin-bottom: 16px;
+        font-size: 1.5rem;
+    }
+    
+    .legend-section {
+        margin-bottom: 20px;
+    }
+    
+    .legend-section h3 {
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+        color: var(--text-dark);
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .legend-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: white;
+    }
+    
+    .legend-icon.destination { background: var(--danger); }
+    .legend-icon.parking { background: var(--primary); }
+    .legend-icon.roadside { background: var(--warning); }
+    .legend-icon.bus { background: var(--success); }
+    .legend-icon.taxi { background: #f1c40f; }
+    .legend-icon.accessible { background: var(--primary); }
+    
+    .legend-text {
+        flex: 1;
+    }
+    
+    .legend-name {
+        font-weight: 600;
+    }
+    
+    .legend-note {
+        font-size: 0.85rem;
+        color: #666;
+    }
+}
+
+.print-legend {
+    display: none;
+}
+
+/* ========================================
+   空狀態
+   ======================================== */
+.empty-state {
+    text-align: center;
+    padding: 35px 18px;
+    color: #95a5a6;
+}
+
+.empty-state-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.empty-state-text {
+    font-size: 0.9rem;
 }
