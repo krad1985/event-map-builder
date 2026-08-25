@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活動地圖產生器 Event Map Builder</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- 自訂樣式 -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- 頂部導覽列 -->
+    <header class="header">
+        <div class="header-left">
+            <h1 class="logo">📍 活動地圖產生器</h1>
+            <span class="version">v1.0</span>
+        </div>
+        <div class="header-right">
+            <button id="btn-projects" class="btn btn-secondary" title="專案管理">
+                📁 專案
+            </button>
+            <button id="btn-export" class="btn btn-secondary" title="匯出">
+                💾 匯出
+            </button>
+            <button id="btn-import" class="btn btn-secondary" title="匯入">
+                📂 匯入
+            </button>
+            <button id="btn-print" class="btn btn-secondary" title="列印">
+                🖨️ 列印
+            </button>
+            <button id="btn-export-html" class="btn btn-primary" title="匯出靜態HTML">
+                🌐 匯出網頁
+            </button>
+        </div>
+    </header>
+
+    <!-- 主要內容區 -->
+    <div class="main-container">
+        <!-- 左側工具列 -->
+        <aside class="toolbar">
+            <div class="tool-group">
+                <h3 class="tool-group-title">工具</h3>
+                <button id="tool-select" class="tool-btn active" data-tool="select" title="選擇/拖曳">
+                    <span class="tool-icon">👆</span>
+                    <span class="tool-label">選擇</span>
+                </button>
+                <button id="tool-destination" class="tool-btn" data-tool="destination" title="標記目的地">
+                    <span class="tool-icon">📍</span>
+                    <span class="tool-label">目的地</span>
+                </button>
+                <button id="tool-parking" class="tool-btn" data-tool="parking" title="標記停車場">
+                    <span class="tool-icon">🅿️</span>
+                    <span class="tool-label">停車場</span>
+                </button>
+                <button id="tool-roadside" class="tool-btn" data-tool="roadside" title="標記路邊停車">
+                    <span class="tool-icon">🚗</span>
+                    <span class="tool-label">路邊停車</span>
+                </button>
+                <button id="tool-text" class="tool-btn" data-tool="text" title="文字方塊">
+                    <span class="tool-icon">💬</span>
+                    <span class="tool-label">文字</span>
+                </button>
+                <button id="tool-route" class="tool-btn" data-tool="route" title="行進路線">
+                    <span class="tool-icon">➡️</span>
+                    <span class="tool-label">路線</span>
+                </button>
+                <button id="tool-draw" class="tool-btn" data-tool="draw" title="畫筆工具">
+                    <span class="tool-icon">✏️</span>
+                    <span class="tool-label">畫筆</span>
+                </button>
+                <button id="tool-delete" class="tool-btn" data-tool="delete" title="刪除模式">
+                    <span class="tool-icon">🗑️</span>
+                    <span class="tool-label">刪除</span>
+                </button>
+            </div>
+
+            <div class="tool-group">
+                <h3 class="tool-group-title">路線設定</h3>
+                <div class="draw-settings">
+                    <label>
+                        顏色
+                        <input type="color" id="route-color" value="#e74c3c" />
+                    </label>
+                    <label>
+                        線寬
+                        <input type="range" id="route-width" min="2" max="10" step="1" value="4" />
+                    </label>
+                    <label>
+                        樣式
+                        <select id="route-style" class="route-select">
+                            <option value="solid">實線 ─────</option>
+                            <option value="dashed">虛線 - - - -</option>
+                            <option value="arrow">箭頭 →→→→</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <h3 class="tool-group-title">畫筆設定</h3>
+                <div class="draw-settings">
+                    <label>
+                        顏色
+                        <input type="color" id="draw-color" value="#ff6b6b" />
+                    </label>
+                    <label>
+                        透明度
+                        <input type="range" id="draw-opacity" min="0.1" max="0.8" step="0.1" value="0.4" />
+                    </label>
+                    <label>
+                        線寬
+                        <input type="range" id="draw-width" min="5" max="50" step="5" value="20" />
+                    </label>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <h3 class="tool-group-title">底圖</h3>
+                <div class="layer-controls">
+                    <label class="layer-toggle">
+                        <input type="radio" name="basemap" value="osm" checked />
+                        <span>🗺️ 標準</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="radio" name="basemap" value="light" />
+                        <span>🌙 淺色</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="radio" name="basemap" value="satellite" />
+                        <span>🛰️ 衛星</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="radio" name="basemap" value="quiet" />
+                        <span>🔇 去符號</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <h3 class="tool-group-title">圖層</h3>
+                <div class="layer-controls">
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="layer-destinations" checked />
+                        <span>📍 目的地</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="layer-parking" checked />
+                        <span>🅿️ 停車場</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="layer-roadside" checked />
+                        <span>🚗 路邊停車</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="layer-routes" checked />
+                        <span>➡️ 路線</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="layer-texts" checked />
+                        <span>💬 文字</span>
+                    </label>
+                    <label class="layer-toggle">
+                        <input type="checkbox" id="layer-drawings" checked />
+                        <span>✏️ 畫筆標記</span>
+                    </label>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 地圖容器 -->
+        <div id="map" class="map-container"></div>
+
+        <!-- 右側屬性面板 -->
+        <aside id="properties-panel" class="properties-panel hidden">
+            <div class="panel-header">
+                <h3 class="panel-title">屬性編輯</h3>
+                <button id="btn-close-panel" class="btn-icon" title="關閉">✕</button>
+            </div>
+            <div class="panel-body">
+                <!-- 目的地屬性 -->
+                <div id="props-destination" class="props-section hidden">
+                    <label>
+                        名稱
+                        <input type="text" id="prop-dest-name" placeholder="例如：活動會場" />
+                    </label>
+                    <label>
+                        備註
+                        <textarea id="prop-dest-note" placeholder="例如：從捷運站步行5分鐘"></textarea>
+                    </label>
+                    <label>
+                        圖標顏色
+                        <input type="color" id="prop-dest-color" value="#e74c3c" />
+                    </label>
+                </div>
+
+                <!-- 停車場屬性 -->
+                <div id="props-parking" class="props-section hidden">
+                    <label>
+                        名稱
+                        <input type="text" id="prop-parking-name" placeholder="例如：XX停車場" />
+                    </label>
+                    <label>
+                        備註
+                        <textarea id="prop-parking-note" placeholder="例如：每小時30元"></textarea>
+                    </label>
+                    <label>
+                        圖標顏色
+                        <input type="color" id="prop-parking-color" value="#3498db" />
+                    </label>
+                </div>
+
+                <!-- 路邊停車屬性 -->
+                <div id="props-roadside" class="props-section hidden">
+                    <label>
+                        路段名稱
+                        <input type="text" id="prop-roadside-name" placeholder="例如：中山路一段" />
+                    </label>
+                    <label>
+                        備註
+                        <textarea id="prop-roadside-note" placeholder="例如： Monday to Friday 8am-6pm"></textarea>
+                    </label>
+                </div>
+
+                <!-- 文字方塊屬性 -->
+                <div id="props-text" class="props-section hidden">
+                    <label>
+                        文字內容
+                        <textarea id="prop-text-content" placeholder="例如：請往這邊走"></textarea>
+                    </label>
+                    <label>
+                        字型大小
+                        <select id="prop-text-size">
+                            <option value="12">小</option>
+                            <option value="16" selected>中</option>
+                            <option value="20">大</option>
+                            <option value="28">特大</option>
+                        </select>
+                    </label>
+                    <label>
+                        背景顏色
+                        <input type="color" id="prop-text-bg" value="#ffffff" />
+                    </label>
+                    <label>
+                        文字顏色
+                        <input type="color" id="prop-text-color" value="#333333" />
+                    </label>
+                    <button id="btn-delete-text" class="btn btn-danger btn-full">
+                        刪除這個文字
+                    </button>
+                </div>
+
+                <!-- 路線屬性 -->
+                <div id="props-route" class="props-section hidden">
+                    <label>
+                        路線名稱
+                        <input type="text" id="prop-route-name" placeholder="例如：主要動線" />
+                    </label>
+                    <label>
+                        備註
+                        <textarea id="prop-route-note" placeholder="例如：從停車場到會場"></textarea>
+                    </label>
+                    <button id="btn-delete-route" class="btn btn-danger btn-full">
+                        刪除這條路線
+                    </button>
+                </div>
+
+                <!-- 畫筆屬性 -->
+                <div id="props-draw" class="props-section hidden">
+                    <label>
+                        標籤
+                        <input type="text" id="prop-draw-label" placeholder="例如：可停車路段" />
+                    </label>
+                    <button id="btn-delete-drawing" class="btn btn-danger btn-full">
+                        刪除這個標記
+                    </button>
+                </div>
+
+                <div class="panel-actions">
+                    <button id="btn-apply-props" class="btn btn-primary btn-full">
+                        套用變更
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 專案管理對話框 -->
+    <dialog id="dialog-projects" class="dialog">
+        <div class="dialog-header">
+            <h2>📁 專案管理</h2>
+            <button id="btn-close-projects" class="btn-icon">✕</button>
+        </div>
+        <div class="dialog-body">
+            <div class="project-actions">
+                <button id="btn-new-project" class="btn btn-primary">
+                    ➕ 新增專案
+                </button>
+            </div>
+            <div id="project-list" class="project-list">
+                <!-- 專案列表會動態產生 -->
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 匯入對話框 -->
+    <dialog id="dialog-import" class="dialog">
+        <div class="dialog-header">
+            <h2>📂 匯入專案</h2>
+            <button id="btn-close-import" class="btn-icon">✕</button>
+        </div>
+        <div class="dialog-body">
+            <div class="import-zone">
+                <input type="file" id="file-import" accept=".json" hidden />
+                <label for="file-import" class="import-label">
+                    <span class="import-icon">📄</span>
+                    <span>點擊選擇 JSON 檔案</span>
+                    <span class="import-hint">或拖曳檔案到這裡</span>
+                </label>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 新增專案對話框 -->
+    <dialog id="dialog-new-project" class="dialog">
+        <div class="dialog-header">
+            <h2>➕ 新增專案</h2>
+            <button id="btn-close-new-project" class="btn-icon">✕</button>
+        </div>
+        <div class="dialog-body">
+            <label>
+                專案名稱
+                <input type="text" id="new-project-name" placeholder="例如：2024 音樂節" />
+            </label>
+            <label>
+                活動日期（選填）
+                <input type="date" id="new-project-date" />
+            </label>
+            <label>
+                備註（選填）
+                <textarea id="new-project-note" placeholder="活動簡述"></textarea>
+            </label>
+            <div class="dialog-actions">
+                <button id="btn-cancel-new-project" class="btn btn-secondary">取消</button>
+                <button id="btn-confirm-new-project" class="btn btn-primary">建立</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 新增文字方塊對話框 -->
+    <dialog id="dialog-text" class="dialog">
+        <div class="dialog-header">
+            <h2>💬 新增文字方塊</h2>
+            <button id="btn-close-text" class="btn-icon">✕</button>
+        </div>
+        <div class="dialog-body">
+            <label>
+                文字內容
+                <textarea id="input-text-content" placeholder="例如：請往這邊走" rows="3"></textarea>
+            </label>
+            <div class="dialog-actions">
+                <button id="btn-cancel-text" class="btn btn-secondary">取消</button>
+                <button id="btn-confirm-text" class="btn btn-primary">確定</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- 主要邏輯 -->
+    <script src="app.js"></script>
+</body>
+</html>

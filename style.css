@@ -1,0 +1,813 @@
+/* ========================================
+   活動地圖產生器 - 樣式表
+   ======================================== */
+
+/* CSS 變數 */
+:root {
+    --primary: #3498db;
+    --primary-dark: #2980b9;
+    --danger: #e74c3c;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --bg-dark: #2c3e50;
+    --bg-light: #ecf0f1;
+    --text-dark: #2c3e50;
+    --text-light: #ffffff;
+    --border: #bdc3c7;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --radius: 8px;
+    --header-height: 60px;
+    --toolbar-width: 80px;
+    --panel-width: 280px;
+}
+
+/* 全域重設 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--bg-light);
+}
+
+/* ========================================
+   頂部導覽列
+   ======================================== */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background: var(--bg-dark);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.version {
+    font-size: 0.75rem;
+    background: var(--primary);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.header-right {
+    display: flex;
+    gap: 8px;
+}
+
+/* ========================================
+   按鈕
+   ======================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--text-light);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: var(--text-light);
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.btn-full {
+    width: 100%;
+    justify-content: center;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   主要佈局
+   ======================================== */
+.main-container {
+    display: flex;
+    height: calc(100vh - var(--header-height));
+    margin-top: var(--header-height);
+}
+
+/* ========================================
+   左側工具列
+   ======================================== */
+.toolbar {
+    width: var(--toolbar-width);
+    background: var(--bg-dark);
+    color: var(--text-light);
+    padding: 16px 8px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.tool-group {
+    margin-bottom: 24px;
+}
+
+.tool-group-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 12px;
+    padding-left: 8px;
+}
+
+.tool-btn {
+    width: 100%;
+    padding: 12px 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
+}
+
+.tool-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.tool-btn.active {
+    background: var(--primary);
+}
+
+.tool-icon {
+    font-size: 1.4rem;
+}
+
+.tool-label {
+    font-size: 0.7rem;
+}
+
+/* 畫筆設定 */
+.draw-settings {
+    padding: 8px;
+}
+
+.draw-settings label {
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+}
+
+.draw-settings input[type="color"] {
+    width: 100%;
+    height: 30px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.draw-settings input[type="range"] {
+    width: 100%;
+    margin-top: 4px;
+}
+
+/* 圖層控制 */
+.layer-controls {
+    padding: 8px;
+}
+
+.layer-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.layer-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.layer-toggle input[type="checkbox"] {
+    margin: 0;
+}
+
+/* ========================================
+   地圖容器
+   ======================================== */
+.map-container {
+    flex: 1;
+    background: #ddd;
+}
+
+/* Leaflet 地圖全高 */
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+/* ========================================
+   右側屬性面板
+   ======================================== */
+.properties-panel {
+    width: var(--panel-width);
+    background: white;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.properties-panel.hidden {
+    display: none;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.panel-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.props-section {
+    margin-bottom: 16px;
+}
+
+.props-section.hidden {
+    display: none;
+}
+
+.props-section label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.props-section input[type="text"],
+.props-section input[type="date"],
+.props-section textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    margin-top: 6px;
+    transition: border-color 0.2s;
+}
+
+.props-section input[type="text"]:focus,
+.props-section input[type="date"]:focus,
+.props-section textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.props-section textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.props-section input[type="color"] {
+    width: 100%;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-top: 6px;
+}
+
+.panel-actions {
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 16px;
+}
+
+/* ========================================
+   對話框
+   ======================================== */
+dialog {
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.dialog-header h2 {
+    font-size: 1.1rem;
+}
+
+.dialog-body {
+    padding: 20px;
+}
+
+.dialog-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* 專案列表 */
+.project-actions {
+    margin-bottom: 16px;
+}
+
+.project-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.project-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.project-item:hover {
+    border-color: var(--primary);
+    background: rgba(52, 152, 219, 0.05);
+}
+
+.project-item.active {
+    border-color: var(--primary);
+    background: rgba(52, 152, 219, 0.1);
+}
+
+.project-info {
+    flex: 1;
+}
+
+.project-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.project-meta {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+}
+
+.project-actions-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.project-actions-btns button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.project-actions-btns button:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* 匯入區域 */
+.import-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.import-zone:hover {
+    border-color: var(--primary);
+    background: rgba(52, 152, 219, 0.05);
+}
+
+.import-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.import-icon {
+    font-size: 2rem;
+}
+
+.import-hint {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+/* ========================================
+   路線樣式
+   ======================================== */
+.route-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+/* ========================================
+   文字方塊樣式
+   ======================================== */
+.text-marker {
+    background: white;
+    border: 2px solid #333;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    cursor: move;
+    white-space: pre-wrap;
+    max-width: 200px;
+    text-align: center;
+    user-select: none;
+}
+
+.text-marker:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.text-marker.selected {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* ========================================
+   路線標記樣式
+   ======================================== */
+.route-marker-label {
+    background: white;
+    border: 2px solid #e74c3c;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    user-select: none;
+}
+
+/* ========================================
+   自訂標記樣式
+   ======================================== */
+.custom-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.custom-marker.destination {
+    background: var(--danger);
+}
+
+.custom-marker.parking {
+    background: var(--primary);
+}
+
+.custom-marker.roadside {
+    background: var(--warning);
+}
+
+.custom-marker span {
+    transform: rotate(45deg);
+    font-size: 16px;
+}
+
+/* 標記 Popup 內容 */
+.marker-popup {
+    text-align: center;
+}
+
+.marker-popup h4 {
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.marker-popup p {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* ========================================
+   畫筆模式游標
+   ======================================== */
+body.drawing-mode {
+    cursor: crosshair !important;
+}
+
+body.drawing-mode #map {
+    cursor: crosshair !important;
+}
+
+/* ========================================
+   刪除模式游標
+   ======================================== */
+body.delete-mode .custom-marker {
+    cursor: pointer;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: rotate(-45deg) scale(1); }
+    50% { transform: rotate(-45deg) scale(1.1); }
+}
+
+/* ========================================
+   響應式設計
+   ======================================== */
+@media (max-width: 768px) {
+    .header {
+        padding: 0 12px;
+    }
+
+    .header-left {
+        gap: 8px;
+    }
+
+    .logo {
+        font-size: 1rem;
+    }
+
+    .version {
+        display: none;
+    }
+
+    .header-right .btn span:not(.tool-icon) {
+        display: none;
+    }
+
+    .toolbar {
+        width: 60px;
+        padding: 12px 4px;
+    }
+
+    .tool-label {
+        display: none;
+    }
+
+    .properties-panel {
+        position: fixed;
+        right: 0;
+        top: var(--header-height);
+        bottom: 0;
+        width: 280px;
+        z-index: 999;
+        transform: translateX(100%);
+    }
+
+    .properties-panel.visible {
+        transform: translateX(0);
+    }
+}
+
+/* ========================================
+   列印樣式
+   ======================================== */
+@media print {
+    body {
+        background: white;
+    }
+
+    .header,
+    .toolbar,
+    .properties-panel,
+    .leaflet-control-zoom,
+    .leaflet-control-attribution {
+        display: none !important;
+    }
+
+    .main-container {
+        margin-top: 0;
+        height: auto;
+    }
+
+    .map-container {
+        width: 100%;
+        height: 70vh;
+        page-break-after: always;
+    }
+
+    /* 列印時顯示標記列表 */
+    .print-legend {
+        display: block !important;
+        padding: 20px;
+        page-break-before: always;
+    }
+
+    .print-legend h2 {
+        margin-bottom: 16px;
+        font-size: 1.5rem;
+    }
+
+    .legend-section {
+        margin-bottom: 24px;
+    }
+
+    .legend-section h3 {
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+        color: var(--text-dark);
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .legend-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: white;
+    }
+
+    .legend-icon.destination { background: var(--danger); }
+    .legend-icon.parking { background: var(--primary); }
+    .legend-icon.roadside { background: var(--warning); }
+
+    .legend-text {
+        flex: 1;
+    }
+
+    .legend-name {
+        font-weight: 600;
+    }
+
+    .legend-note {
+        font-size: 0.85rem;
+        color: #666;
+    }
+}
+
+/* 列印圖例（預設隱藏） */
+.print-legend {
+    display: none;
+}
+
+/* ========================================
+   工具提示
+   ======================================== */
+.tooltip {
+    position: absolute;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    pointer-events: none;
+    z-index: 1001;
+    white-space: nowrap;
+}
+
+/* ========================================
+   動畫
+   ======================================== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ========================================
+   空狀態
+   ======================================== */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #95a5a6;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+.empty-state-text {
+    font-size: 0.9rem;
+}

@@ -1,0 +1,23 @@
+# 活動地圖產生器 - Git 忽略清單
+
+# 作業系統檔案
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# 編輯器設定
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node.js（如果未來使用）
+node_modules/
+package-lock.json
+
+# 瀏覽器快取
+.cache/
+
+# 臨時檔案
+*.tmp
+*.temp
