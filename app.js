@@ -193,6 +193,9 @@ function bindEvents() {
 
     // 鎖定地圖
     document.getElementById('btn-lock-map').addEventListener('click', toggleMapLock);
+    
+    // 工具列收合
+    document.getElementById('btn-toggle-toolbar').addEventListener('click', toggleToolbar);
     document.getElementById('layer-parking').addEventListener('change', toggleLayer);
     document.getElementById('layer-roadside').addEventListener('change', toggleLayer);
     document.getElementById('layer-bus').addEventListener('change', toggleLayer);
@@ -1599,6 +1602,40 @@ function toggleMapLock() {
         btn.classList.remove('locked');
         showToast('地圖已解鎖');
     }
+}
+
+// ========================================
+// 工具列收合
+// ========================================
+
+let toolbarExpanded = true;
+
+function toggleToolbar() {
+    toolbarExpanded = !toolbarExpanded;
+    const toolbar = document.querySelector('.toolbar-horizontal');
+    const toggleBtn = document.getElementById('btn-toggle-toolbar');
+    const rows = toolbar.querySelectorAll('.toolbar-row');
+    
+    if (toolbarExpanded) {
+        // 展開
+        rows.forEach(row => row.style.display = '');
+        toggleBtn.textContent = '▲';
+        toggleBtn.title = '收合工具列';
+    } else {
+        // 收合 - 只保留第一列
+        rows.forEach((row, i) => {
+            if (i === 0) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        toggleBtn.textContent = '▼';
+        toggleBtn.title = '展開工具列';
+    }
+    
+    // 更新地圖位置
+    setTimeout(() => map.invalidateSize(), 310);
 }
 
 // ========================================
