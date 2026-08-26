@@ -755,6 +755,50 @@ dialog::backdrop {
     font-size: 14px;
 }
 
+/* 標記標籤 */
+.marker-label {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 8px;
+    background: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    pointer-events: none;
+    z-index: 100;
+}
+
+/* 車輛標記標籤 */
+.vehicle-marker-wrapper {
+    position: relative;
+}
+
+.vehicle-marker-wrapper .marker-label {
+    top: 50%;
+}
+
+/* 標籤顯示模式 */
+.marker-label-mode-none .marker-label {
+    display: none;
+}
+
+.marker-label-mode-always .marker-label {
+    display: block;
+}
+
+.marker-label-mode-hover .marker-label {
+    display: none;
+}
+
+.marker-label-mode-hover:hover .marker-label {
+    display: block;
+}
+
 /* 平坦車輛圖標 - 只顯示 emoji */
 .vehicle-marker {
     display: flex;

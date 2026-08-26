@@ -42,6 +42,9 @@ const MAX_UNDO = 50;
 // 地圖鎖定
 let mapLocked = false;
 
+// 標籤顯示模式: none, always, hover
+let labelMode = 'none';
+
 // ========================================
 // 初始化
 // ========================================
@@ -186,6 +189,11 @@ function bindEvents() {
     // 底圖切換
     document.querySelectorAll('input[name="basemap"]').forEach(radio => {
         radio.addEventListener('change', switchBasemap);
+    });
+    
+    // 標籤顯示模式
+    document.querySelectorAll('input[name="labelmode"]').forEach(radio => {
+        radio.addEventListener('change', switchLabelMode);
     });
 
     // 圖層控制
@@ -375,13 +383,14 @@ function addMarker(type, lat, lng, data = null) {
 
 function addMarkerToMap(data) {
     const { id, type, lat, lng, name, note, color } = data;
+    const displayLabel = data.label !== undefined ? data.label : name;
     
     let icon;
     if (['bus', 'taxi', 'accessible', 'roadside'].includes(type)) {
         // 車輛圖標 - 只顯示 emoji
         icon = L.divIcon({
-            className: 'vehicle-marker-container',
-            html: `<div class="vehicle-marker">${getMarkerEmoji(type)}</div>`,
+            className: 'vehicle-marker-container marker-label-mode-' + labelMode,
+            html: `<div class="vehicle-marker-wrapper"><div class="vehicle-marker">${getMarkerEmoji(type)}</div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`,
             iconSize: [28, 28],
             iconAnchor: [14, 14],
             popupAnchor: [0, -14]
@@ -389,8 +398,8 @@ function addMarkerToMap(data) {
     } else {
         // 水滴型標記
         icon = L.divIcon({
-            className: 'custom-marker-container',
-            html: `<div class="custom-marker" style="background: ${color}"><span>${getMarkerEmoji(type)}</span></div>`,
+            className: 'custom-marker-container marker-label-mode-' + labelMode,
+            html: `<div class="custom-marker-wrapper"><div class="custom-marker" style="background: ${color}"><span>${getMarkerEmoji(type)}</span></div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`,
             iconSize: [32, 32],
             iconAnchor: [16, 32],
             popupAnchor: [0, -32]
@@ -1038,10 +1047,11 @@ function applyProperties() {
     
     // 重建圖標
     let icon;
+    const displayLabel = data.label !== undefined ? data.label : data.name;
     if (['bus', 'taxi', 'accessible', 'roadside'].includes(data.type)) {
-        icon = L.divIcon({ className: 'vehicle-marker-container', html: `<div class="vehicle-marker">${getMarkerEmoji(data.type)}</div>`, iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -14] });
+        icon = L.divIcon({ className: 'vehicle-marker-container marker-label-mode-' + labelMode, html: `<div class="vehicle-marker-wrapper"><div class="vehicle-marker">${getMarkerEmoji(data.type)}</div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`, iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -14] });
     } else {
-        icon = L.divIcon({ className: 'custom-marker-container', html: `<div class="custom-marker" style="background: ${data.color}"><span>${getMarkerEmoji(data.type)}</span></div>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] });
+        icon = L.divIcon({ className: 'custom-marker-container marker-label-mode-' + labelMode, html: `<div class="custom-marker-wrapper"><div class="custom-marker" style="background: ${data.color}"><span>${getMarkerEmoji(data.type)}</span></div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] });
     }
     marker.setIcon(icon);
     marker.setPopupContent(createPopupContent(data));
@@ -1569,6 +1579,19 @@ function switchBasemap(e) {
     if (basemapLayers[currentBasemap]) map.removeLayer(basemapLayers[currentBasemap]);
     if (basemapLayers[value]) basemapLayers[value].addTo(map);
     currentBasemap = value;
+}
+
+function switchLabelMode(e) {
+    labelMode = e.target.value;
+    // 更新所有標記的標籤顯示模式
+    Object.values(markers).forEach(marker => {
+        const el = marker.getElement();
+        if (el) {
+            el.className = el.className.replace(/marker-label-mode-\w+/g, '');
+            el.classList.add('marker-label-mode-' + labelMode);
+        }
+    });
+    saveCurrentProject();
 }
 
 function toggleLayer(e) {
