@@ -758,9 +758,6 @@ dialog::backdrop {
 /* 標記標籤 */
 .marker-label {
     position: absolute;
-    left: calc(100% + 4px);
-    top: 50%;
-    transform: translateY(-50%);
     background: white;
     padding: 2px 6px;
     border-radius: 3px;
@@ -770,6 +767,35 @@ dialog::backdrop {
     box-shadow: 0 1px 4px rgba(0,0,0,0.2);
     pointer-events: none;
     z-index: 100;
+}
+
+/* 標籤位置 - 左方（預設） */
+.marker-label-pos-left {
+    right: calc(100% + 6px);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* 標籤位置 - 右方 */
+.marker-label-pos-right {
+    left: calc(100% + 6px);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* 標籤位置 - 下方 */
+.marker-label-pos-below {
+    left: 50%;
+    top: calc(100% + 4px);
+    transform: translateX(-50%);
+}
+
+/* 標籤位置 - 標記上 */
+.marker-label-pos-on {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.9);
 }
 
 /* 水滴標記包裝器 */
