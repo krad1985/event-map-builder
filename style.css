@@ -758,14 +758,13 @@ dialog::backdrop {
 /* 標記標籤 */
 .marker-label {
     position: absolute;
-    left: 100%;
+    left: calc(100% + 4px);
     top: 50%;
     transform: translateY(-50%);
-    margin-left: 8px;
     background: white;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
     font-weight: 500;
     white-space: nowrap;
     box-shadow: 0 1px 4px rgba(0,0,0,0.2);
@@ -773,29 +772,38 @@ dialog::backdrop {
     z-index: 100;
 }
 
-/* 車輛標記標籤 */
+/* 水滴標記包裝器 */
+.custom-marker-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+}
+
+/* 車輛標記包裝器 */
 .vehicle-marker-wrapper {
     position: relative;
+    width: 28px;
+    height: 28px;
 }
 
-.vehicle-marker-wrapper .marker-label {
-    top: 50%;
-}
-
-/* 標籤顯示模式 */
-.marker-label-mode-none .marker-label {
+/* 標籤顯示模式 - 水滴標記 */
+.custom-marker-wrapper.marker-label-mode-none .marker-label,
+.vehicle-marker-wrapper.marker-label-mode-none .marker-label {
     display: none;
 }
 
-.marker-label-mode-always .marker-label {
+.custom-marker-wrapper.marker-label-mode-always .marker-label,
+.vehicle-marker-wrapper.marker-label-mode-always .marker-label {
     display: block;
 }
 
-.marker-label-mode-hover .marker-label {
+.custom-marker-wrapper.marker-label-mode-hover .marker-label,
+.vehicle-marker-wrapper.marker-label-mode-hover .marker-label {
     display: none;
 }
 
-.marker-label-mode-hover:hover .marker-label {
+.custom-marker-wrapper.marker-label-mode-hover:hover .marker-label,
+.vehicle-marker-wrapper.marker-label-mode-hover:hover .marker-label {
     display: block;
 }
 

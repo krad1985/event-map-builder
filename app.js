@@ -42,9 +42,6 @@ const MAX_UNDO = 50;
 // 地圖鎖定
 let mapLocked = false;
 
-// 標籤顯示模式: none, always, hover
-let labelMode = 'none';
-
 // ========================================
 // 初始化
 // ========================================
@@ -189,11 +186,6 @@ function bindEvents() {
     // 底圖切換
     document.querySelectorAll('input[name="basemap"]').forEach(radio => {
         radio.addEventListener('change', switchBasemap);
-    });
-    
-    // 標籤顯示模式
-    document.querySelectorAll('input[name="labelmode"]').forEach(radio => {
-        radio.addEventListener('change', switchLabelMode);
     });
 
     // 圖層控制
@@ -384,13 +376,14 @@ function addMarker(type, lat, lng, data = null) {
 function addMarkerToMap(data) {
     const { id, type, lat, lng, name, note, color } = data;
     const displayLabel = data.label !== undefined ? data.label : name;
+    const markerLabelMode = data.labelMode || 'none';
     
     let icon;
     if (['bus', 'taxi', 'accessible', 'roadside'].includes(type)) {
         // 車輛圖標 - 只顯示 emoji
         icon = L.divIcon({
-            className: 'vehicle-marker-container marker-label-mode-' + labelMode,
-            html: `<div class="vehicle-marker-wrapper"><div class="vehicle-marker">${getMarkerEmoji(type)}</div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`,
+            className: 'vehicle-marker-container',
+            html: `<div class="vehicle-marker-wrapper marker-label-mode-${markerLabelMode}"><div class="vehicle-marker">${getMarkerEmoji(type)}</div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`,
             iconSize: [28, 28],
             iconAnchor: [14, 14],
             popupAnchor: [0, -14]
@@ -398,8 +391,8 @@ function addMarkerToMap(data) {
     } else {
         // 水滴型標記
         icon = L.divIcon({
-            className: 'custom-marker-container marker-label-mode-' + labelMode,
-            html: `<div class="custom-marker-wrapper"><div class="custom-marker" style="background: ${color}"><span>${getMarkerEmoji(type)}</span></div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`,
+            className: 'custom-marker-container',
+            html: `<div class="custom-marker-wrapper marker-label-mode-${markerLabelMode}"><div class="custom-marker" style="background: ${color}"><span>${getMarkerEmoji(type)}</span></div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`,
             iconSize: [32, 32],
             iconAnchor: [16, 32],
             popupAnchor: [0, -32]
@@ -929,35 +922,42 @@ function openPropertiesPanel(data) {
     const section = document.getElementById(`props-${data.type}`);
     if (section) {
         section.classList.remove('hidden');
+        const labelMode = data.labelMode || 'none';
         switch (data.type) {
             case 'destination':
                 document.getElementById('prop-dest-name').value = data.name || '';
                 document.getElementById('prop-dest-note').value = data.note || '';
                 document.getElementById('prop-dest-color').value = data.color || '#e74c3c';
+                document.getElementById('prop-dest-labelmode').value = labelMode;
                 break;
             case 'parking':
                 document.getElementById('prop-parking-name').value = data.name || '';
                 document.getElementById('prop-parking-note').value = data.note || '';
                 document.getElementById('prop-parking-color').value = data.color || '#3498db';
+                document.getElementById('prop-parking-labelmode').value = labelMode;
                 break;
             case 'roadside':
                 document.getElementById('prop-roadside-name').value = data.name || '';
                 document.getElementById('prop-roadside-note').value = data.note || '';
+                document.getElementById('prop-roadside-labelmode').value = labelMode;
                 break;
             case 'bus':
                 document.getElementById('prop-bus-name').value = data.name || '';
                 document.getElementById('prop-bus-note').value = data.note || '';
                 document.getElementById('prop-bus-color').value = data.color || '#27ae60';
+                document.getElementById('prop-bus-labelmode').value = labelMode;
                 break;
             case 'taxi':
                 document.getElementById('prop-taxi-name').value = data.name || '';
                 document.getElementById('prop-taxi-note').value = data.note || '';
                 document.getElementById('prop-taxi-color').value = data.color || '#f1c40f';
+                document.getElementById('prop-taxi-labelmode').value = labelMode;
                 break;
             case 'accessible':
                 document.getElementById('prop-accessible-name').value = data.name || '';
                 document.getElementById('prop-accessible-note').value = data.note || '';
                 document.getElementById('prop-accessible-color').value = data.color || '#3498db';
+                document.getElementById('prop-accessible-labelmode').value = labelMode;
                 break;
             case 'draw':
                 document.getElementById('prop-draw-label').value = data.label || '';
@@ -1018,40 +1018,47 @@ function applyProperties() {
             data.name = document.getElementById('prop-dest-name').value.trim() || '目的地';
             data.note = document.getElementById('prop-dest-note').value.trim();
             data.color = document.getElementById('prop-dest-color').value;
+            data.labelMode = document.getElementById('prop-dest-labelmode').value;
             break;
         case 'parking':
             data.name = document.getElementById('prop-parking-name').value.trim() || '停車場';
             data.note = document.getElementById('prop-parking-note').value.trim();
             data.color = document.getElementById('prop-parking-color').value;
+            data.labelMode = document.getElementById('prop-parking-labelmode').value;
             break;
         case 'roadside':
             data.name = document.getElementById('prop-roadside-name').value.trim() || '小車';
             data.note = document.getElementById('prop-roadside-note').value.trim();
+            data.labelMode = document.getElementById('prop-roadside-labelmode').value;
             break;
         case 'bus':
             data.name = document.getElementById('prop-bus-name').value.trim() || '遊覽車停靠點';
             data.note = document.getElementById('prop-bus-note').value.trim();
             data.color = document.getElementById('prop-bus-color').value;
+            data.labelMode = document.getElementById('prop-bus-labelmode').value;
             break;
         case 'taxi':
             data.name = document.getElementById('prop-taxi-name').value.trim() || '計程車搭乘處';
             data.note = document.getElementById('prop-taxi-note').value.trim();
             data.color = document.getElementById('prop-taxi-color').value;
+            data.labelMode = document.getElementById('prop-taxi-labelmode').value;
             break;
         case 'accessible':
             data.name = document.getElementById('prop-accessible-name').value.trim() || '無障礙車位';
             data.note = document.getElementById('prop-accessible-note').value.trim();
             data.color = document.getElementById('prop-accessible-color').value;
+            data.labelMode = document.getElementById('prop-accessible-labelmode').value;
             break;
     }
     
     // 重建圖標
     let icon;
     const displayLabel = data.label !== undefined ? data.label : data.name;
+    const markerLabelMode = data.labelMode || 'none';
     if (['bus', 'taxi', 'accessible', 'roadside'].includes(data.type)) {
-        icon = L.divIcon({ className: 'vehicle-marker-container marker-label-mode-' + labelMode, html: `<div class="vehicle-marker-wrapper"><div class="vehicle-marker">${getMarkerEmoji(data.type)}</div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`, iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -14] });
+        icon = L.divIcon({ className: 'vehicle-marker-container', html: `<div class="vehicle-marker-wrapper marker-label-mode-${markerLabelMode}"><div class="vehicle-marker">${getMarkerEmoji(data.type)}</div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`, iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -14] });
     } else {
-        icon = L.divIcon({ className: 'custom-marker-container marker-label-mode-' + labelMode, html: `<div class="custom-marker-wrapper"><div class="custom-marker" style="background: ${data.color}"><span>${getMarkerEmoji(data.type)}</span></div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] });
+        icon = L.divIcon({ className: 'custom-marker-container', html: `<div class="custom-marker-wrapper marker-label-mode-${markerLabelMode}"><div class="custom-marker" style="background: ${data.color}"><span>${getMarkerEmoji(data.type)}</span></div><div class="marker-label">${escapeHtml(displayLabel)}</div></div>`, iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32] });
     }
     marker.setIcon(icon);
     marker.setPopupContent(createPopupContent(data));
@@ -1579,19 +1586,6 @@ function switchBasemap(e) {
     if (basemapLayers[currentBasemap]) map.removeLayer(basemapLayers[currentBasemap]);
     if (basemapLayers[value]) basemapLayers[value].addTo(map);
     currentBasemap = value;
-}
-
-function switchLabelMode(e) {
-    labelMode = e.target.value;
-    // 更新所有標記的標籤顯示模式
-    Object.values(markers).forEach(marker => {
-        const el = marker.getElement();
-        if (el) {
-            el.className = el.className.replace(/marker-label-mode-\w+/g, '');
-            el.classList.add('marker-label-mode-' + labelMode);
-        }
-    });
-    saveCurrentProject();
 }
 
 function toggleLayer(e) {

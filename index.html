@@ -194,14 +194,6 @@
                 <label class="toggle-label"><input type="radio" name="basemap" value="satellite" /> 衛星</label>
                 <label class="toggle-label"><input type="radio" name="basemap" value="quiet" /> 去符號</label>
             </div>
-            
-            <!-- 標籤顯示 -->
-            <div class="setting-group">
-                <span class="setting-label">標籤：</span>
-                <label class="toggle-label"><input type="radio" name="labelmode" value="none" checked /> 隱藏</label>
-                <label class="toggle-label"><input type="radio" name="labelmode" value="always" /> 顯示</label>
-                <label class="toggle-label"><input type="radio" name="labelmode" value="hover" /> 懸停</label>
-            </div>
         </div>
         
         <!-- 路線編輯提示 -->
@@ -242,6 +234,14 @@
                         圖標顏色
                         <input type="color" id="prop-dest-color" value="#e74c3c" />
                     </label>
+                    <label>
+                        標籤顯示
+                        <select id="prop-dest-labelmode">
+                            <option value="none">隱藏</option>
+                            <option value="always">顯示</option>
+                            <option value="hover">懸停顯示</option>
+                        </select>
+                    </label>
                 </div>
 
                 <!-- 停車場屬性 -->
@@ -258,6 +258,14 @@
                         圖標顏色
                         <input type="color" id="prop-parking-color" value="#3498db" />
                     </label>
+                    <label>
+                        標籤顯示
+                        <select id="prop-parking-labelmode">
+                            <option value="none">隱藏</option>
+                            <option value="always">顯示</option>
+                            <option value="hover">懸停顯示</option>
+                        </select>
+                    </label>
                 </div>
 
                 <!-- 小車屬性 -->
@@ -269,6 +277,14 @@
                     <label>
                         備註
                         <textarea id="prop-roadside-note" placeholder="例如： Monday to Friday 8am-6pm"></textarea>
+                    </label>
+                    <label>
+                        標籤顯示
+                        <select id="prop-roadside-labelmode">
+                            <option value="none">隱藏</option>
+                            <option value="always">顯示</option>
+                            <option value="hover">懸停顯示</option>
+                        </select>
                     </label>
                 </div>
 
@@ -286,6 +302,14 @@
                         圖標顏色
                         <input type="color" id="prop-bus-color" value="#27ae60" />
                     </label>
+                    <label>
+                        標籤顯示
+                        <select id="prop-bus-labelmode">
+                            <option value="none">隱藏</option>
+                            <option value="always">顯示</option>
+                            <option value="hover">懸停顯示</option>
+                        </select>
+                    </label>
                 </div>
 
                 <!-- 計程車屬性 -->
@@ -302,6 +326,14 @@
                         圖標顏色
                         <input type="color" id="prop-taxi-color" value="#f1c40f" />
                     </label>
+                    <label>
+                        標籤顯示
+                        <select id="prop-taxi-labelmode">
+                            <option value="none">隱藏</option>
+                            <option value="always">顯示</option>
+                            <option value="hover">懸停顯示</option>
+                        </select>
+                    </label>
                 </div>
 
                 <!-- 無障礙車位屬性 -->
@@ -317,6 +349,14 @@
                     <label>
                         圖標顏色
                         <input type="color" id="prop-accessible-color" value="#3498db" />
+                    </label>
+                    <label>
+                        標籤顯示
+                        <select id="prop-accessible-labelmode">
+                            <option value="none">隱藏</option>
+                            <option value="always">顯示</option>
+                            <option value="hover">懸停顯示</option>
+                        </select>
                     </label>
                 </div>
 
