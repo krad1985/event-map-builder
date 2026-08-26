@@ -1615,19 +1615,16 @@ function toggleToolbar() {
     const toolbar = document.querySelector('.toolbar-horizontal');
     const toggleBtn = document.getElementById('btn-toggle-toolbar');
     const rows = toolbar.querySelectorAll('.toolbar-row');
-    const toggleBar = document.querySelector('.toolbar-toggle');
     
     if (toolbarExpanded) {
         // 展開
         rows.forEach(row => row.style.display = '');
-        toggleBar.style.top = '';
-        toggleBtn.textContent = '▲';
+        toggleBtn.textContent = '📌 工具列';
         toggleBtn.title = '收合工具列';
     } else {
         // 收合 - 隱藏所有列
         rows.forEach(row => row.style.display = 'none');
-        toggleBar.style.top = 'var(--header-height)';
-        toggleBtn.textContent = '▼';
+        toggleBtn.textContent = '📌 工具列';
         toggleBtn.title = '展開工具列';
     }
     
